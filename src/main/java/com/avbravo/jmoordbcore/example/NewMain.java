@@ -5,6 +5,9 @@
  */
 package com.avbravo.jmoordbcore.example;
 
+import com.avbravo.jmoordbcore.Jmoordb;
+import com.avbravo.jmoordbcore.Repository;
+import com.mongodb.MongoClient;
 import com.mongodb.client.model.InsertOneOptions;
 
 /**
@@ -18,15 +21,11 @@ public class NewMain {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        PersonRepository personRepository = new PersonRepository() {
-            @Override
-            public <T> T save(T entity, InsertOneOptions options) {
-                System.out.println("----New Main.java");
-                return null;
-            }
-        } ;
+        MongoClient mongoClient = new MongoClient();
+          final Repository repository = Jmoordb.createDatastore(mongoClient, "morphia_example");
+     
         Person p = new Person(1,"aris");
-        Person save = personRepository.save(p);
+        Person save = repository.save(p);
     }
     
 }
