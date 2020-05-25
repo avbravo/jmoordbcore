@@ -23,7 +23,7 @@ public class TemplateImpl   implements AdvancedTemplate {
     private final MongoDatabase database;
     private final MongoClient mongoClient;
      protected TemplateImpl(final MongoClient mongoClient, final String options, final String dbName) {
-         System.out.println("--------->RepositoryImpl(final MongoClient mongoClient, final String options, final String dbName) " );
+         System.out.println("-TemplateImpl -------->protected TemplateImpl((final MongoClient mongoClient, final String options, final String dbName) " );
        this.mongoClient = mongoClient;
        MongoDatabase database = mongoClient.getDatabase(dbName);
 //        this.mapper = new Mapper(this, database.getCodecRegistry(), options);
@@ -39,7 +39,8 @@ public class TemplateImpl   implements AdvancedTemplate {
     }
      @Override
     public <T> T save(final T entity, final InsertOneOptions options) {
-         System.out.println("..---RepositoryImoplemetacion.java save()");
+         System.out.println("===========================================================");
+         System.out.println("TemplateImpl.java..---save()");
         if (entity == null) {
           
         }

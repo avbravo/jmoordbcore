@@ -23,9 +23,9 @@ public class Example {
         // TODO code application logic here
         MongoClient mongoClient = new MongoClient();
           final Template template = Jmoordb.createConnection(mongoClient, "jmoord_example");
-     
-        Person p = new Person(1,"aris");
-        Person save = template.save(p);
+//     
+      Person p = new Person(1,"aris");
+       Person save = template.save(p);
     }
     
 }

@@ -14,6 +14,7 @@ import com.mongodb.client.model.InsertOneOptions;
 @SuppressWarnings({"unchecked", "UnusedReturnValue", "unused", "removal"})
 public interface Template {
      default <T> T save(T entity) {
+         System.out.println("++++++++++++++++++++++++++++++++++");
          System.out.println("Template.java. save()");
         return save(entity, new InsertOneOptions());
     }
