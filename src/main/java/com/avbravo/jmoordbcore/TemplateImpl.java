@@ -9,22 +9,26 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.InsertOneOptions;
+import java.lang.System.Logger;
 
 /**
  *
  * @author avbravo
  */
 @SuppressWarnings({"unchecked", "rawtypes", "removal"})
-public class RepositoryImpl   implements AdvancedDatastore {
+public class TemplateImpl   implements AdvancedTemplate {
     
-    
-     protected RepositoryImpl(final MongoClient mongoClient, final String options, final String dbName) {
-         System.out.println("RepositoryImpl(final MongoClient mongoClient, final String options, final String dbName) " );
-//        this.mongoClient = mongoClient;
-//        MongoDatabase database = mongoClient.getDatabase(dbName);
+     // private static final Logger LOG = LoggerFactory.getLogger(TemplateImpl.class);
+
+    private final MongoDatabase database;
+    private final MongoClient mongoClient;
+     protected TemplateImpl(final MongoClient mongoClient, final String options, final String dbName) {
+         System.out.println("--------->RepositoryImpl(final MongoClient mongoClient, final String options, final String dbName) " );
+       this.mongoClient = mongoClient;
+       MongoDatabase database = mongoClient.getDatabase(dbName);
 //        this.mapper = new Mapper(this, database.getCodecRegistry(), options);
 //
-//        this.database = database
+      this.database = database;
 //                            .withCodecRegistry(mapper.getCodecRegistry());
 //        this.queryFactory = options.getQueryFactory();
     }

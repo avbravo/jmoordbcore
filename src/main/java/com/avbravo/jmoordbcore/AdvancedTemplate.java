@@ -17,11 +17,12 @@ import org.bson.Document;
  */
 @SuppressWarnings("removal")
 @Deprecated(since = "2.0", forRemoval = true)
-public interface AdvancedDatastore extends Repository {
+public interface AdvancedTemplate extends Template {
 
     @SuppressWarnings("removal")
     @Deprecated(since = "2.0", forRemoval = true)
     default <T> void insert(T entity, InsertOptions options) {
+        System.out.println("---->AdvancedTemplate.insert");
      //   insert(entity, options.toInsertOneOptions()); 
     }
 }

@@ -5,12 +5,12 @@
  */
 package com.avbravo.jmoordbcore.example;
 
-import com.avbravo.jmoordbcore.Repository;
+import com.avbravo.jmoordbcore.Template;
 
 /**
  *
  * @author avbravo
  */
-public interface PersonRepository extends Repository{
+public interface PersonRepository extends Template{
     
 }

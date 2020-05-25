@@ -6,15 +6,15 @@
 package com.avbravo.jmoordbcore.example;
 
 import com.avbravo.jmoordbcore.Jmoordb;
-import com.avbravo.jmoordbcore.Repository;
 import com.mongodb.MongoClient;
 import com.mongodb.client.model.InsertOneOptions;
+import com.avbravo.jmoordbcore.Template;
 
 /**
  *
  * @author avbravo
  */
-public class NewMain {
+public class Example {
 
     /**
      * @param args the command line arguments
@@ -22,10 +22,10 @@ public class NewMain {
     public static void main(String[] args) {
         // TODO code application logic here
         MongoClient mongoClient = new MongoClient();
-          final Repository repository = Jmoordb.createDatastore(mongoClient, "morphia_example");
+          final Template template = Jmoordb.createConnection(mongoClient, "morphia_example");
      
         Person p = new Person(1,"aris");
-        Person save = repository.save(p);
+        Person save = template.save(p);
     }
     
 }
