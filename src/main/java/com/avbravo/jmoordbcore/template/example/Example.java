@@ -3,12 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordbcore.example;
+package com.avbravo.jmoordbcore.template.example;
 
-import com.avbravo.jmoordbcore.Jmoordb;
+
+import com.avbravo.jmoordbcore.template.JmoordbTemplate;
 import com.mongodb.MongoClient;
 import com.mongodb.client.model.InsertOneOptions;
-import com.avbravo.jmoordbcore.Template;
+import com.avbravo.jmoordbcore.template.Template;
 
 /**
  *
@@ -22,7 +23,8 @@ public class Example {
     public static void main(String[] args) {
         // TODO code application logic here
         MongoClient mongoClient = new MongoClient();
-          final Template template = Jmoordb.createConnection(mongoClient, "jmoord_example");
+      
+        final Template template = JmoordbTemplate.createConnection(mongoClient, "jmoordb_example");
 //     
       Person p = new Person(1,"aris");
        Person save = template.save(p);

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordbcore;
+package com.avbravo.jmoordbcore.template;
 
 import com.mongodb.MongoClient;
 
@@ -11,13 +11,13 @@ import com.mongodb.MongoClient;
  *
  * @author avbravo
  */
-public class Jmoordb {
+public class JmoordbTemplate {
      public static Template createConnection(final MongoClient mongoClient, final String dbName) {
          System.out.println("Jmoordb.-------Jmoordb.createConnection(final MongoClient mongoClient, final String dbName)");
-        return createConnectionTemplateImpl(mongoClient, dbName,"llamare");
+        return createConnection(mongoClient, dbName,"llamare");
     }
      
-      public static Template createConnectionTemplateImpl(final MongoClient mongoClient, final String dbName, final String options) {
+      public static Template createConnection(final MongoClient mongoClient, final String dbName, final String options) {
            System.out.println("Jmoordb.******createConnectionTemplateImpl(final MongoClient mongoClient, final String dbName, final String options)");
         return new TemplateImpl(mongoClient, options, dbName);
     }

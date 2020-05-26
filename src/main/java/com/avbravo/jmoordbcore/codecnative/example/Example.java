@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordbcore.codecregister;
+package com.avbravo.jmoordbcore.codecnative.example;
 
 import com.mongodb.Block;
 import com.mongodb.MongoClientSettings;
@@ -42,6 +42,8 @@ public class Example {
                     .codecRegistry(pojoCodecRegistry)
                     .build();
 
+            
+            
             MongoClient mongoClient = MongoClients.create(settings);
 
             /**

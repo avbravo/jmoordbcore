@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordbcore;
+package com.avbravo.jmoordbcore.codecnative;
 
 import com.mongodb.client.model.InsertOneOptions;
 
@@ -12,8 +12,8 @@ import com.mongodb.client.model.InsertOneOptions;
  * @author avbravo
  */
 @SuppressWarnings({"unchecked", "UnusedReturnValue", "unused", "removal"})
-public interface Template {
-     default <T> T save(T entity) {
+public interface CodecNative {
+    default <T> T save(T entity) {
          System.out.println("++++++++++++++++++++++++++++++++++");
          System.out.println("Template.java. save()");
         return save(entity, new InsertOneOptions());

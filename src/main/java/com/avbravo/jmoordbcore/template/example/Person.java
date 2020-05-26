@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordbcore.example;
+package com.avbravo.jmoordbcore.template.example;
 
 /**
  *
