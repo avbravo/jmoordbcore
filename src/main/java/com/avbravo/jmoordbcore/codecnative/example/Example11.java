@@ -30,7 +30,7 @@ import org.bson.codecs.pojo.PojoCodecProvider;
  *
  * @author avbravo
  */
-public class Example1 {
+public class Example11 {
 
     /**
      * @param args the command line arguments
@@ -39,15 +39,15 @@ public class Example1 {
         // TODO code application logic here
         try {
             //Obtener el codec
-         MongoClient mongoClient = MongoClients.create(JmoordbCodecNative.settings());
+          //  MongoClient mongoClient = MongoClients.create(JmoordbCodecNative.settings());
             //Definir codecNative
-       final CodecNative codecNative = JmoordbCodecNative.createConnection(mongoClient, "jmoordb_nativecode");
-        Person person = new Person("Ada Byron", 20, new Address("St James Square", "London", "W1", new Calle("c", "Rosio")));
-        codecNative.save(person);
-
-            System.out.println(" invocare find()");
-            //QUERY
-       codecNative.findAll(person);
+//            final CodecNative codecNative = JmoordbCodecNative.createConnection( "jmoordb_nativecode");
+//            Person person = new Person("Ada Byron", 20, new Address("St James Square", "London", "W1", new Calle("c", "Rosio")));
+//            codecNative.save(person);
+//
+//            System.out.println(" invocare find()");
+//            //QUERY
+//            codecNative.findAll(person);
         } catch (Exception e) {
             System.out.println("Error " + e.getLocalizedMessage());
         }

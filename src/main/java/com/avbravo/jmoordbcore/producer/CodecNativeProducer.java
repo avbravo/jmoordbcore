@@ -30,13 +30,15 @@ public class CodecNativeProducer {
     @Produces
     @ApplicationScoped
     public MongoClient mongoClientCodecNative() {
+        System.out.println("-------------------------------------");
+        System.out.println("Producer");
          MongoClient mongoClient = MongoClients.create(JmoordbCodecNative.settings());
         try {
         
           
         } catch (Exception e) {
-            System.out.println("error() "+e.getLocalizedMessage());
-     //       JmoordbUtil.errorMessage("conecction() "+e.getLocalizedMessage());
+            System.out.println("emongoClientCodecNative() "+e.getLocalizedMessage());
+
         }
 
         return mongoClient;

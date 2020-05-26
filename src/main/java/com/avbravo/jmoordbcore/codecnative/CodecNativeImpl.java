@@ -16,7 +16,6 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.InsertOneOptions;
 import java.lang.System.Logger;
-import javax.inject.Inject;
 import org.bson.codecs.configuration.CodecRegistry;
 
 /**
@@ -30,8 +29,6 @@ public class CodecNativeImpl implements AdvancedCodeNative {
     private final MongoDatabase database;
     private final MongoClient mongoClient;
 
-      @Inject
-    MongoClient mongoClientCodecNative;
     protected CodecNativeImpl(final MongoClient mongoClient, final String options, final String dbName, CodecRegistry pojoCodecRegistry) {
 
         this.mongoClient = mongoClient;

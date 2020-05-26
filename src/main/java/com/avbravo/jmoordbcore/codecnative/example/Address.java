@@ -9,7 +9,7 @@ package com.avbravo.jmoordbcore.codecnative.example;
  *
  * @author avbravo
  */
-public final class Address {
+public  class Address {
     private String street;
     private String city;
     private String zip;
