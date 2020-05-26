@@ -9,6 +9,7 @@ import com.avbravo.jmoordbcore.codecnative.example.Address;
 import com.avbravo.jmoordbcore.codecnative.example.Calle;
 import com.avbravo.jmoordbcore.codecnative.example.Person;
 import com.avbravo.jmoordbcore.template.*;
+import com.mongodb.Block;
 import com.mongodb.client.MongoClient;
 
 import com.mongodb.client.MongoCollection;
@@ -28,12 +29,12 @@ public class CodecNativeImpl implements AdvancedCodeNative {
     private final MongoDatabase database;
     private final MongoClient mongoClient;
 
-    protected CodecNativeImpl(final MongoClient mongoClient, final String options, final String dbName,CodecRegistry pojoCodecRegistry) {
-        
+    protected CodecNativeImpl(final MongoClient mongoClient, final String options, final String dbName, CodecRegistry pojoCodecRegistry) {
+
         this.mongoClient = mongoClient;
         MongoDatabase database = mongoClient.getDatabase(dbName);
-         database = database.withCodecRegistry(pojoCodecRegistry);
-        
+        database = database.withCodecRegistry(pojoCodecRegistry);
+
         this.database = database;
 
     }
@@ -45,25 +46,50 @@ public class CodecNativeImpl implements AdvancedCodeNative {
 
     @Override
     public <T> T save(final T entity, final InsertOneOptions options) {
-     
+
         if (entity == null) {
 
         }
 
-        save(entity,1, 2, 2);
+        save(entity, 1, 2, 2);
         return entity;
     }
 
-    private <T> void save(final T entity,Integer a, Integer b, Integer c) {
+    private <T> void save(final T entity, Integer a, Integer b, Integer c) {
         //Aqui poner los entitys
-        System.out.println("V===============================>oy a guardar los datos");
-         MongoCollection<Person> collection = database.getCollection("people", Person.class);
+        try {
+            MongoCollection<T> collection = (MongoCollection<T>) database.getCollection(entity.getClass().getSimpleName(), entity.getClass());
+            collection.insertOne(entity);
 
-            //Insert a Person aqui pongo los entitys descompuestos de la reflexio
-            Person person = new Person("Ada Byron", 20, new Address("St James Square", "London", "W1", new Calle("c", "Rosio")));
-            collection.insertOne(person);
-            System.out.println("-----------------> Guardado en la base de datos");
-        
+        } catch (Exception e) {
+            System.out.println("save() " + e.getLocalizedMessage());
+        }
+
     }
+    
+    
+    
+    
+    
+    public <T> T findAll(final T entity) {
+        try{
+  MongoCollection<T> collection = (MongoCollection<T>) database.getCollection(entity.getClass().getSimpleName(), entity.getClass());
+              
+
+             //  Query the Collection
+            Block<Person> printBlock = new Block<Person>() {
+                @Override
+                public void apply(final Person person) {
+                    System.out.println(person);
+                }
+            };
+            //Consumer
+          //   collection.find().forEach(printBlock);
+             } catch (Exception e) {
+             System.out.println("find() " + e.getLocalizedMessage());
+        }
+        return entity;
+    }
+  
 
 }

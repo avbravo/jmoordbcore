@@ -41,10 +41,13 @@ public class Example1 {
             //Obtener el codec
             MongoClient mongoClient = MongoClients.create(JmoordbCodecNative.settings());
             //Definir codecNative
-            final CodecNative codecNative = JmoordbCodecNative.createConnection(mongoClient, "jmoordb_example");
+            final CodecNative codecNative = JmoordbCodecNative.createConnection(mongoClient, "jmoordb_nativecode");
             Person person = new Person("Ada Byron", 20, new Address("St James Square", "London", "W1", new Calle("c", "Rosio")));
             codecNative.save(person);
 
+            System.out.println(" invocare find()");
+            //QUERY
+            codecNative.findAll(person);
         } catch (Exception e) {
             System.out.println("Error " + e.getLocalizedMessage());
         }

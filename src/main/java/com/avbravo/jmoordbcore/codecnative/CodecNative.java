@@ -19,4 +19,6 @@ public interface CodecNative {
         return save(entity, new InsertOneOptions());
     }
          <T> T save(T entity, InsertOneOptions options);
+         
+         <T> T findAll(T entity);
 }
