@@ -28,6 +28,7 @@ public class Example {
 //     
       Person p = new Person(1,"aris");
        Person save = template.save(p);
+       
     }
     
 }
