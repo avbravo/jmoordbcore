@@ -5,17 +5,13 @@
  */
 package com.avbravo.jmoordbcore.codecnative;
 
-import com.avbravo.jmoordbcore.codecnative.example.Address;
-import com.avbravo.jmoordbcore.codecnative.example.Calle;
 import com.avbravo.jmoordbcore.codecnative.example.Person;
-import com.avbravo.jmoordbcore.template.*;
 import com.mongodb.Block;
 import com.mongodb.client.MongoClient;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.InsertOneOptions;
-import java.lang.System.Logger;
 import org.bson.codecs.configuration.CodecRegistry;
 
 /**

@@ -5,27 +5,6 @@
  */
 package com.avbravo.jmoordbcore.codecnative.example;
 
-import com.avbravo.jmoordbcore.codecnative.CodecNative;
-import com.avbravo.jmoordbcore.codecnative.JmoordbCodecNative;
-import com.avbravo.jmoordbcore.template.JmoordbTemplate;
-import com.avbravo.jmoordbcore.template.Template;
-import com.mongodb.Block;
-import com.mongodb.MongoClientSettings;
-import org.bson.codecs.configuration.CodecProvider;
-import org.bson.codecs.configuration.CodecRegistry;
-import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
-import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
-import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-//import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import static java.util.Arrays.asList;
-import java.util.List;
-import org.bson.Document;
-import org.bson.codecs.pojo.PojoCodecProvider;
-
 /**
  *
  * @author avbravo
