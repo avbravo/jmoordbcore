@@ -9,17 +9,13 @@ import com.avbravo.jmoordbcore.annotations.core.CodecNativeClient;
 import com.avbravo.jmoordbcore.annotations.core.RepositoryClient;
 import com.avbravo.jmoordbcore.annotations.core.TemplateClient;
 import com.avbravo.jmoordbcore.codecnative.JmoordbCodecNative;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import java.util.ArrayList;
-import java.util.Arrays;
-import javax.ejb.ConcurrencyManagement;
-import javax.ejb.ConcurrencyManagementType;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Singleton;
+import jakarta.ejb.ConcurrencyManagement;
+import jakarta.ejb.ConcurrencyManagementType;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Singleton;
+import jakarta.ws.rs.Produces;
 
 /**
  *

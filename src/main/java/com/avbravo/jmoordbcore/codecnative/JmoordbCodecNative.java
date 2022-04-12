@@ -27,7 +27,7 @@ public class JmoordbCodecNative {
 
     public static CodecNative createConnection(final MongoClient mongoClient, final String dbName, final String options) {
         System.out.println("Jmoordb.******createConnectionTemplateImpl(final MongoClient mongoClient, final String dbName, final String options)");
-        return new CodecNativeImpl(mongoClient, options, dbName,pojoCodecRegistry());
+        return new CodecNativeImpl(mongoClient, options, dbName, pojoCodecRegistry());
     }
 
     /**
