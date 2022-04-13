@@ -3,34 +3,38 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordbcore.codecnative.example;
+package com.avbravo.jmoordbcore.codecnative.test;
 
+import com.avbravo.jmoordbcore.codecnative.example.model.Person;
+import com.avbravo.jmoordbcore.codecnative.example.model.Address;
+import com.avbravo.jmoordbcore.codecnative.example.model.Calle;
 import com.mongodb.Block;
 import com.mongodb.MongoClientSettings;
-import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
-import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import static java.util.Arrays.asList;
-import java.util.List;
-import org.bson.Document;
+import jakarta.inject.Named;
+import java.io.Serializable;
+import javax.enterprise.context.RequestScoped;
 import org.bson.codecs.pojo.PojoCodecProvider;
+import com.mongodb.client.model.InsertOneOptions;
 
 /**
  *
  * @author avbravo
  */
-public class Example {
+@Named
+@RequestScoped
+public class Example implements Serializable{
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public void test() {
         // TODO code application logic here
         try {
             //Creating a Custom CodecRegistry
@@ -80,14 +84,15 @@ public class Example {
 //            System.out.println("Insertando muchas.....");
 
             //  Query the Collection
-            Block<Person> printBlock = new Block<Person>() {
-                @Override
-                public void apply(final Person person) {
-                    System.out.println(person);
-                }
-            };
+           Block<Person> printBlock = new Block<Person>() {
+    @Override
+    public void apply(final Person person) {
+        System.out.println(person);
+    }
+};
 
-            collection.find().forEach(printBlock);
+  //   collection.find().forEach(printBlock);
+     
         } catch (Exception e) {
             System.out.println("Error "+e.getLocalizedMessage());
         }

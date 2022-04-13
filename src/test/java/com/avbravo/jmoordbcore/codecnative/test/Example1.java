@@ -3,24 +3,32 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordbcore.codecnative.example;
+package com.avbravo.jmoordbcore.codecnative.test;
 
+import com.avbravo.jmoordbcore.codecnative.example.model.Person;
+import com.avbravo.jmoordbcore.codecnative.example.model.Calle;
+import com.avbravo.jmoordbcore.codecnative.example.model.Address;
 import com.avbravo.jmoordbcore.codecnative.CodecNative;
 import com.avbravo.jmoordbcore.codecnative.JmoordbCodecNative;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import jakarta.inject.Named;
+import java.io.Serializable;
+import javax.enterprise.context.RequestScoped;
 //import com.mongodb.client.MongoClients;
 
 /**
  *
  * @author avbravo
  */
-public class Example1 {
+@Named
+@RequestScoped
+public class Example1 implements Serializable{
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public void test() {
         // TODO code application logic here
         try {
             //Obtener el codec

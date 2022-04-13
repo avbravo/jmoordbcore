@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordbcore.codecnative.example;
+package com.avbravo.jmoordbcore.codecnative.example.model;
 
+import com.avbravo.jmoordbcore.codecnative.example.model.Address;
 import org.bson.types.ObjectId;
 
 /**

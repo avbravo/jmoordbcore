@@ -5,11 +5,9 @@
  */
 package com.avbravo.jmoordbcore.template;
 
-import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.InsertOneOptions;
-import java.lang.System.Logger;
 
 /**
  *

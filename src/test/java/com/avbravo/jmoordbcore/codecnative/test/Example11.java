@@ -3,18 +3,24 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordbcore.codecnative.example;
+package com.avbravo.jmoordbcore.codecnative.test;
+
+import jakarta.inject.Named;
+import java.io.Serializable;
+import javax.enterprise.context.RequestScoped;
 
 /**
  *
  * @author avbravo
  */
-public class Example11 {
+@Named
+@RequestScoped
+public class Example11 implements Serializable {
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public void test() {
         // TODO code application logic here
         try {
             //Obtener el codec

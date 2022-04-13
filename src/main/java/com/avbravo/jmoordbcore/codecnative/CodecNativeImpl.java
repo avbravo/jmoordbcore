@@ -5,7 +5,7 @@
  */
 package com.avbravo.jmoordbcore.codecnative;
 
-import com.avbravo.jmoordbcore.codecnative.example.Person;
+
 import com.mongodb.Block;
 import com.mongodb.client.MongoClient;
 
@@ -73,10 +73,10 @@ public class CodecNativeImpl implements AdvancedCodeNative {
               
 
              //  Query the Collection
-            Block<Person> printBlock = new Block<Person>() {
+            Block<T> printBlock = new Block<T>() {
                 @Override
-                public void apply(final Person person) {
-                    System.out.println(person);
+                public void apply(final T t) {
+                    System.out.println(t);
                 }
             };
             //Consumer

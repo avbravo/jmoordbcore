@@ -4,13 +4,8 @@
  * and open the template in the editor.
  */
 package com.avbravo.jmoordbcore.codecnative;
+import com.mongodb.client.model.InsertOneOptions.*; 
 
-import com.avbravo.jmoordbcore.template.*;
-import com.mongodb.DBObject;
-import com.mongodb.DBRef;
-import com.mongodb.InsertOptions;
-import java.util.List;
-import org.bson.Document;
 
 /**
  *

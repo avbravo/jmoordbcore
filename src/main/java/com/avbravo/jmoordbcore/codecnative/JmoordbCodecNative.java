@@ -5,7 +5,6 @@
  */
 package com.avbravo.jmoordbcore.codecnative;
 
-import com.avbravo.jmoordbcore.template.*;
 
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
