@@ -18,7 +18,8 @@ public interface AdvancedTemplate extends Template {
 
     @SuppressWarnings("removal")
     @Deprecated(since = "2.0", forRemoval = true)
-    default <T> void insert(T entity, InsertOptions options) {
+//    default <T> void insert(T entity, InsertOptions options) {
+    default <T> void insert(T entity) {
         System.out.println("AdvancedTemplate---->AdvancedTemplate.insert");
      //   insert(entity, options.toInsertOneOptions()); 
     }

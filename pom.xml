@@ -102,6 +102,28 @@
              <version>4.4.0</version>
             <scope>test</scope>
         </dependency>
+        
+        
+          <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.4</version>
+        </dependency>
+        <dependency>
+            <groupId>fish.payara.extras</groupId>
+            <artifactId>payara-embedded-web</artifactId>
+            <version>6.2021.1.Alpha1</version>
+            <type>jar</type>
+        </dependency>
+        
+             <!--
+        Para el sql query
+        -->
+        <dependency>
+            <groupId>com.github.vincentrussell</groupId>
+            <artifactId>sql-to-mongo-db-query-converter</artifactId>
+                   <version>1.10</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>${project.artifactId}</finalName>
