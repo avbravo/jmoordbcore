@@ -3,14 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordbcore.template.example;
-
-import com.avbravo.jmoordbcore.template.Template;
+package com.avbravo.jmoordbcore.documentquery;
 
 /**
  *
  * @author avbravo
  */
-public interface PersonRepository extends Template{
+public class AND {
     
 }

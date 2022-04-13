@@ -3,19 +3,23 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordbcore.template.example;
+package com.avbravo.jmoordbcore.test.model;
 
 
 import com.avbravo.jmoordbcore.template.JmoordbTemplate;
 import com.mongodb.MongoClient;
-import com.mongodb.client.model.InsertOneOptions;
 import com.avbravo.jmoordbcore.template.Template;
+import jakarta.inject.Named;
+import java.io.Serializable;
+import javax.enterprise.context.RequestScoped;
 
 /**
  *
  * @author avbravo
  */
-public class Example {
+@Named
+@RequestScoped
+public class Example implements Serializable{
 
     /**
      * @param args the command line arguments
