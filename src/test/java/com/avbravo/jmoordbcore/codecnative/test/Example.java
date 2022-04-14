@@ -6,8 +6,6 @@
 package com.avbravo.jmoordbcore.codecnative.test;
 
 import com.avbravo.jmoordbcore.codecnative.example.model.Person;
-import com.avbravo.jmoordbcore.codecnative.example.model.Address;
-import com.avbravo.jmoordbcore.codecnative.example.model.Calle;
 import com.mongodb.Block;
 import com.mongodb.MongoClientSettings;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -21,7 +19,6 @@ import jakarta.inject.Named;
 import java.io.Serializable;
 import javax.enterprise.context.RequestScoped;
 import org.bson.codecs.pojo.PojoCodecProvider;
-import com.mongodb.client.model.InsertOneOptions;
 
 /**
  *
@@ -64,9 +61,9 @@ public class Example implements Serializable{
             MongoCollection<Person> collection = database.getCollection("people", Person.class);
 
             //Insert a Person
-            Person ada2 = new Person("Ada Byron", 20, new Address("St James Square", "London", "W1",new Calle("c", "Rosio")));
-                        collection.insertOne(ada2);
-                        
+//            Person ada2 = new Person("Ada Byron", 20, new Address("St James Square", "London", "W1",new Calle("c", "Rosio")));
+//                        collection.insertOne(ada2);
+//                        
                         
 //            Person ada = new Person("Ada Byron", 20, new Address("St James Square", "London", "W1"));
 //

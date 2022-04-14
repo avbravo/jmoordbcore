@@ -5,7 +5,7 @@
  */
 package com.avbravo.jmoordbcore.metafactory;
 
-import com.avbravo.jmoordbcore.model.UserInfo;
+import com.avbravo.jmoordbcore.mongodb.model.UserInfo;
 import jakarta.persistence.Embedded;
 import java.util.List;
 

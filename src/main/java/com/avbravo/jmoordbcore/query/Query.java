@@ -16,9 +16,9 @@ import com.avbravo.jmoordbcore.enumeration.Logic;
 public class Query {
 
     private String field;
-      Comparison comparision;
+    Comparison comparision;
     private Object value;
-  
+
     Logic binary;
     Query query;
     DateQuery dateQuery;
@@ -35,9 +35,6 @@ public class Query {
         this.dateQuery = dateQuery;
     }
 
-   
-   
-   
     public Logic getBinary() {
         return binary;
     }
@@ -46,8 +43,6 @@ public class Query {
         this.binary = binary;
     }
 
-    
-    
     public String getField() {
         return field;
     }
@@ -72,11 +67,6 @@ public class Query {
         this.comparision = comparision;
     }
 
-  
-
-   
-
-
     public Query getQuery() {
         return query;
     }
@@ -84,7 +74,6 @@ public class Query {
     public void setQuery(Query query) {
         this.query = query;
     }
-
 
     public DateQuery getDateQuery() {
         return dateQuery;
@@ -94,40 +83,40 @@ public class Query {
         this.dateQuery = dateQuery;
     }
 
-
     public static class Builder {
-   private String field;
-    private Object value;
-    Comparison comparison;
-    Logic binary;
-    Query query;
-    DateQuery dateQuery;
+
+        private String field;
+        private Object value;
+        Comparison comparison;
+        Logic binary;
+        Query query;
+        DateQuery dateQuery;
 
         public Builder field(String field) {
             this.field = field;
             return this;
         }
-        
+
         public Builder value(Object value) {
             this.value = value;
             return this;
         }
-        
-        
-        public Builder comparison (Comparison comparison) {
+
+        public Builder comparison(Comparison comparison) {
             this.comparison = comparison;
             return this;
         }
-        public Builder binary( Logic binary) {
+
+        public Builder binary(Logic binary) {
             this.binary = binary;
             return this;
         }
+
         public Builder query(Query query) {
             this.query = query;
             return this;
         }
 
-        
         public Builder dateQuery(DateQuery dateQuery) {
             this.dateQuery = dateQuery;
             return this;

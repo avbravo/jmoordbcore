@@ -8,7 +8,6 @@ package com.avbravo.jmoordbcore.mongodb;
 
 import com.avbravo.jmoordbcore.lambdametafactory.JmoordbLambdaMetaFactory;
 import com.avbravo.jmoordbcore.model.UserInfo;
-import com.avbravo.jmoordbcore.mongodb.configuration.JmoordbContext;
 import com.avbravo.jmoordbcore.mongodb.internal.DocumentToJavaJmoordbResult;
 import com.avbravo.jmoordbcore.mongodb.internal.DocumentToJavaMongoDB;
 import com.avbravo.jmoordbcore.mongodb.internal.JavaToDocument;
@@ -28,6 +27,7 @@ import com.avbravo.jmoordbcore.mongodb.util.Analizador;
 import com.avbravo.jmoordbcore.mongodb.util.JmoordbDateUtil;
 import com.avbravo.jmoordbcore.mongodb.util.JmoordbUtil;
 import com.avbravo.jmoordbcore.query.Query;
+import com.avbravo.jmoordbcore.query.QuerySorter;
 import com.avbravo.jmoordbcore.sorter.Sort;
 import com.avbravo.jmoordbcore.sorter.Sorter;
 import com.github.vincentrussell.query.mongodb.sql.converter.MongoDBQueryHolder;
@@ -35,9 +35,6 @@ import com.github.vincentrussell.query.mongodb.sql.converter.QueryConverter;
 import com.mongodb.Block;
 import com.mongodb.CursorType;
 import com.mongodb.Function;
-import com.mongodb.MongoClientURI;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
@@ -62,6 +59,7 @@ import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
 import jakarta.servlet.ServletContext;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
@@ -108,9 +106,8 @@ public abstract class Repository<T> implements InterfaceRepository {
 // <editor-fold defaultstate="collapsed" desc="field">
 //invoca el @JmoordbProducer que tiene un metodo MongoClient mongoClient
 
-//    @Inject
-//    MongoClient mongoClient;
-
+    @Inject
+    MongoClient mongoClient;
     Integer contador = 0;
     Document querySorter = new Document();
     Document querySearch = new Document();
@@ -155,9 +152,6 @@ public abstract class Repository<T> implements InterfaceRepository {
         this.microservicesModelList = microservicesModelList;
     }
 
-   
-    
-    
     public Document getQuerySorter() {
         return querySorter;
     }
@@ -174,8 +168,6 @@ public abstract class Repository<T> implements InterfaceRepository {
         this.querySearch = querySearch;
     }
 
-    
-    
     public Exception getException() {
         return exception;
     }
@@ -230,9 +222,9 @@ public abstract class Repository<T> implements InterfaceRepository {
     public MongoDatabase getMongoDatabase() {
         try {
 
-//                MongoDatabase db = mongoClient().getDatabase(database);
-            MongoDatabase db = mongoClient().getDatabase(database);
-//                MongoDatabase db = mongoClient().getDatabase(database);
+//                MongoDatabase db = mongoClient.getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
+//                MongoDatabase db = mongoClient.getDatabase(database);
             if (db == null) {
                 ////Test.msg("+++AbstractFacade.getMonogDatabase() == null");
             } else {
@@ -269,7 +261,7 @@ public abstract class Repository<T> implements InterfaceRepository {
         compositeKeyList = new ArrayList<>();
         embeddedModelList = new ArrayList<>();
         referencedModelList = new ArrayList<>();
-       microservicesModelList= new ArrayList<>(); 
+        microservicesModelList = new ArrayList<>();
         datePatternBeansList = new ArrayList<>();
         fieldBeansList = new ArrayList<>();
 
@@ -441,7 +433,7 @@ public abstract class Repository<T> implements InterfaceRepository {
         compositeKeyList = analizador.getCompositeKeyList();
         embeddedModelList = analizador.getEmbeddedBeansList();
         referencedModelList = analizador.getReferencedBeansList();
-       microservicesModelList = analizador.getMicroservicesModelList();
+        microservicesModelList = analizador.getMicroservicesModelList();
         datePatternBeansList = analizador.getDatePatternBeansList();
         fieldBeansList = analizador.getFieldBeansList();
 
@@ -493,8 +485,8 @@ public abstract class Repository<T> implements InterfaceRepository {
 
             return true;
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -531,8 +523,8 @@ public abstract class Repository<T> implements InterfaceRepository {
 
             return true;
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -565,12 +557,12 @@ public abstract class Repository<T> implements InterfaceRepository {
 
                     doc.put(p.getName(), method.invoke(t2));
 
-                } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return doc;
     }// </editor-fold>
@@ -587,8 +579,8 @@ public abstract class Repository<T> implements InterfaceRepository {
             primaryKeyList.forEach((p) -> {
                 doc.put(p.getName(), 1);
             });
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return doc;
     }// </editor-fold>
@@ -605,8 +597,8 @@ public abstract class Repository<T> implements InterfaceRepository {
             secondaryKeyList.forEach((p) -> {
                 doc.put(p.getName(), 1);
             });
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return doc;
     }// </editor-fold>
@@ -623,8 +615,8 @@ public abstract class Repository<T> implements InterfaceRepository {
             tertiaryKeyList.forEach((p) -> {
                 doc.put(p.getName(), 1);
             });
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return doc;
     }// </editor-fold>
@@ -641,8 +633,8 @@ public abstract class Repository<T> implements InterfaceRepository {
             compositeKeyList.forEach((p) -> {
                 doc.put(p.getName(), 1);
             });
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return doc;
     }// </editor-fold>
@@ -664,8 +656,8 @@ public abstract class Repository<T> implements InterfaceRepository {
             }
             getMongoDatabase().getCollection(collection).createIndex(docIndex);
             return true;
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -690,12 +682,12 @@ public abstract class Repository<T> implements InterfaceRepository {
                     doc.put(p.getName(), method.invoke(t2));
 
                     return find(doc);
-                 } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return Optional.empty();
     }// </editor-fold>
@@ -726,12 +718,12 @@ public abstract class Repository<T> implements InterfaceRepository {
                     }
 
                     //    doc.put(p.getName(), method.invoke(t2));
-                } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return value;
     }// </editor-fold>
@@ -758,8 +750,8 @@ public abstract class Repository<T> implements InterfaceRepository {
 
                 //    doc.put(p.getName(), method.invoke(t2));
             }
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return value;
     }// </editor-fold>
@@ -790,12 +782,12 @@ public abstract class Repository<T> implements InterfaceRepository {
                     }
 
                     //    doc.put(p.getName(), method.invoke(t2));
-                } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return value;
     }// </editor-fold>
@@ -836,12 +828,12 @@ public abstract class Repository<T> implements InterfaceRepository {
                     }
                     map.put(p.getName(), value);
 
-                } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return map;
     }// </editor-fold>
@@ -862,8 +854,8 @@ public abstract class Repository<T> implements InterfaceRepository {
                 name = util.letterToLower(p.getName());
 
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return name;
     }// </editor-fold>
@@ -894,12 +886,12 @@ public abstract class Repository<T> implements InterfaceRepository {
                     }
                     map.put(name, value);
 
-                 } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return map;
     }
@@ -918,8 +910,8 @@ public abstract class Repository<T> implements InterfaceRepository {
                 return Optional.of(t_);
             }
 
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return Optional.empty();
     }// </editor-fold>
@@ -943,8 +935,8 @@ public abstract class Repository<T> implements InterfaceRepository {
                 return true;
             }
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -975,12 +967,12 @@ public abstract class Repository<T> implements InterfaceRepository {
                     } else {
                         return true;
                     }
-               } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -1009,8 +1001,8 @@ public abstract class Repository<T> implements InterfaceRepository {
                 return Optional.of(t_);
             }
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return Optional.empty();
     }// </editor-fold>
@@ -1020,40 +1012,27 @@ public abstract class Repository<T> implements InterfaceRepository {
     public Optional<T> find(String key, Object value) {
         try {
 
-            //   Object t = entityClass.newInstance();
-                MongoDatabase db = mongoClient().getDatabase(database);
+   
+            MongoDatabase db = mongoClient.getDatabase(database);
 
             FindIterable<Document> iterable = db.getCollection(collection).find(new Document(key, value));
 
-            haveElements = false;
-//            Consumer<Document> printConsumer = document -> System.out.println(document.toJson());
-            Consumer<Document> printConsumer = document -> 
-                     tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-                    
-            
-db.getCollection(collection).find(new Document(key, value)).forEach(printConsumer);
-            
-//            iterable.forEach(new Block<Document>() {
-//                @Override
-//                public void apply(final Document document) {
-//                    try {
-//                        haveElements = true;
-//                        tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-//                    } catch (Exception e) {          
-//          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-//        }
-//
-//                }
-//            });
-//            if (haveElements) {
-            if (tlocal!= null) {
+
+
+            Consumer<Document> printConsumer = document
+                    -> tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
+
+            db.getCollection(collection).find(new Document(key, value)).forEach(printConsumer);
+
+ 
+            if (tlocal != null) {
 
                 return Optional.of(tlocal);
             }
             return Optional.empty();
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return Optional.empty();
@@ -1069,9 +1048,9 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
     public Optional<T> find(Document document) {
         try {
             //   Object t = entityClass.newInstance();
-//                MongoDatabase db = mongoClient().getDatabase(database);
-            MongoDatabase db = mongoClient().getDatabase(database);
-            
+//                MongoDatabase db = mongoClient.getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
+
             FindIterable<Document> iterable = db.getCollection(collection).find(document);
             tlocal = (T) iterableSimple(iterable);
             if (tlocal == null) {
@@ -1079,8 +1058,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             }
             return Optional.of(tlocal);
             //return (T) tlocal;
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return Optional.empty();
 //        return null;
@@ -1097,60 +1076,41 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
     public Optional<T> find(Bson filter) {
         try {
             //   Object t = entityClass.newInstance();
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).find(filter);
             tlocal = (T) iterableSimple(iterable);
             return Optional.of(tlocal);
             //return (T) tlocal;
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return Optional.empty();
 //        return null;
     }
 // </editor-fold>
-    
-    
-    
-    
 
     // <editor-fold defaultstate="collapsed" desc="T search(String key, Object value)">
     public T search(String key, Object value) {
         try {
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
 
             if (db == null) {
                 return null;
             } else {
             }
-             Consumer<Document> printConsumer = document -> 
-                     tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-                    
-            
-db.getCollection(collection).find(new Document(key, value)).forEach(printConsumer);
-//            FindIterable<Document> iterable = db.getCollection(collection).find(new Document(key, value));
-//            ////Test.msg("+++ paso iterable");
-//            haveElements = false;
-//            iterable.forEach(new Block<Document>() {
-//                @Override
-//                public void apply(final Document document) {
-//                    try {
-//                        haveElements = true;
-//                        tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-//                   } catch (Exception e) {          
-//          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-//        }
+            Consumer<Document> printConsumer = document
+                    -> tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
 
-//                }
-//            });
-            if (haveElements) {
+            db.getCollection(collection).find(new Document(key, value)).forEach(printConsumer);
+
+            if (tlocal != null) {
                 return tlocal;
             }
             return null;
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return null;
@@ -1161,40 +1121,24 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
     public T search(String key, Integer value) {
         try {
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
 
             if (db == null) {
                 return null;
             } else {
             }
-             Consumer<Document> printConsumer = document -> 
-                     tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-                    
-            
-db.getCollection(collection).find(new Document(key, value)).forEach(printConsumer);
-haveElements=true;
-//            FindIterable<Document> iterable = db.getCollection(collection).find(new Document(key, value));
-//            ////Test.msg("+++ paso iterable");
-//            haveElements = false;
-//            iterable.forEach(new Block<Document>() {
-//                @Override
-//                public void apply(final Document document) {
-//                    try {
-//                        haveElements = true;
-//                        tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-//                    } catch (Exception e) {          
-//          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-//        }
-//
-//                }
-//            });
-            if (haveElements) {
+            Consumer<Document> printConsumer = document
+                    -> tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
+
+            db.getCollection(collection).find(new Document(key, value)).forEach(printConsumer);
+          
+            if (tlocal != null) {
                 return tlocal;
             }
             return null;
 
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return null;
@@ -1205,39 +1149,24 @@ haveElements=true;
     public T search(String key, String value) {
         try {
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
 
             if (db == null) {
                 return null;
             } else {
             }
-//            FindIterable<Document> iterable = db.getCollection(collection).find(new Document(key, value));
-//            ////Test.msg("+++ paso iterable");
-//            haveElements = false;
-//            iterable.forEach(new Block<Document>() {
-//                @Override
-//                public void apply(final Document document) {
-//                    try {
-//                        haveElements = true;
-//                        tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-//                    } catch (Exception e) {          
-//          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-//        }
-//
-//                }
-//            });
- Consumer<Document> printConsumer = document -> 
-                     tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-                    
-            
-db.getCollection(collection).find(new Document(key, value)).forEach(printConsumer);
-            if (haveElements) {
+
+            Consumer<Document> printConsumer = document
+                    -> tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
+
+            db.getCollection(collection).find(new Document(key, value)).forEach(printConsumer);
+            if (tlocal != null) {
                 return tlocal;
             }
             return null;
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return null;
@@ -1255,7 +1184,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
     public Optional<T> findFirst(Document... doc) {
         try {
             Document document = new Document();
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             if (doc.length != 0) {
                 document = doc[0];
 
@@ -1270,8 +1199,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             }
 
             //return (T) tlocal;
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return Optional.empty();
     }
@@ -1296,15 +1225,15 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             if (sql.toLowerCase().indexOf("order by") != -1) {
                 sortQuery = mongoDBQueryHolder.getSort();
             }
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
 
             FindIterable<Document> iterable = db.getCollection(collection).find(doc).limit(1);
             tlocal = (T) iterableSimple(iterable);
             return Optional.of(tlocal);
 
             //return (T) tlocal;
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return Optional.empty();
     }
@@ -1314,13 +1243,13 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
     private T findInternal(Document document) {
         try {
             //   Object t = entityClass.newInstance();
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).find(document);
             tlocal = (T) iterableSimple(iterable);
             return tlocal;
             //return (T) tlocal;
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return null;
     }// </editor-fold>
@@ -1336,27 +1265,14 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
         try {
             //      ////Test.msg("$$$$$$$iterable simple");
             haveElements = false;
-//             Consumer<Document> printConsumer = document -> 
-//                     tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-//                    
-//            
-//db.getCollection(collection).find(new Document(key, value)).forEach(printConsumer);
-//
-//            iterable.forEach(new Block<Document>() {
-//                @Override
-//                public void apply(final Document document) {
-//                    try {
-//                        haveElements = true;
-//                        t1 = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-//                    } catch (Exception e) {          
-//          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-//        }
-//
-//                }
-//            });
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+            Consumer<Document> printConsumer = document
+                    -> tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
+
+            iterable.forEach(printConsumer);
+
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         if (haveElements) {
             return (T) t1;
@@ -1367,32 +1283,23 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
     // <editor-fold defaultstate="collapsed" desc="iterableList(FindIterable<Document> iterable)">
     /**
-     * 
+     *
      * @param iterable
-     * @return  List<T>
+     * @return List<T>
      */
     private List< T> iterableList(FindIterable<Document> iterable) {
         List< T> l = new ArrayList<>();
         try {
             //Test.msg("-->IterableList::");
-            
-            iterable.forEach(new Block<Document>() {
-                @Override
-                public void apply(final Document document) {
-                    try {
-                        //Test.msg("..........................................................................");
-                        //Test.msg("Prueba: iterable: "+document.toJson());
-                        t1 = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-                        l.add(t1);
-                    } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
 
-                }
-            });
+            Consumer<Document> printConsumer = document
+                    -> l.add((T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList));
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+            iterable.forEach(printConsumer);
+
+
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return l;
     }// </editor-fold>
@@ -1401,21 +1308,14 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
     private List< T> processAggregateIterable(AggregateIterable<Document> iterable) {
         List< T> l = new ArrayList<>();
         try {
-            iterable.forEach(new Block<Document>() {
-                @Override
-                public void apply(final Document document) {
-                    try {
-                        t1 = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-                        l.add(t1);
-                    } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+              Consumer<Document> printConsumer = document
+                    -> l.add((T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList));
 
-                }
-            });
+            iterable.forEach(printConsumer);
+        
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return l;
@@ -1426,34 +1326,27 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
         List<JmoordbResult> l = new ArrayList<>();
         List<Map<String, Object>> lObject = new ArrayList<>();
         try {
-            iterable.forEach(new Block<Document>() {
-                @Override
-                public void apply(final Document document) {
-                    try {
+              Consumer<Document> printConsumer = document -> 
+                               lObject.add(new HashMap<>(document));
+                   
+                    
+            
+iterable.forEach(printConsumer);
 
-                        // document.remove("_id");
-                        Map<String, Object> map = new HashMap<>(document);
-                        lObject.add(map);
-
-                    } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
-
-                }
-            });
+           
             for (Map m : lObject) {
                 JmoordbResult jmoordbResult = new JmoordbResult();
                 for (Iterator it = m.entrySet().iterator(); it.hasNext();) {
                     Map.Entry<String, Object> entry = (Map.Entry<String, Object>) it.next();
-//                    System.out.println("====>key "+entry.getKey() + " value "+entry.getValue().toString());
+
                     jmoordbResult.put(entry.getKey(), entry.getValue().toString());
 
                 }
                 l.add(jmoordbResult);
             }
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return l;
@@ -1476,8 +1369,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             if (mod > 0) {
                 size++;
             }
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return size;
     }// </editor-fold>
@@ -1501,8 +1394,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             }
             return pages;
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return pages;
     }
@@ -1521,36 +1414,16 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             if (doc.length != 0) {
                 documento = doc[0];
                 //nuev a version ejecuta el count con documento como filtro
-                 contador = (int) mongoClient().getDatabase(database).getCollection(collection).count(documento);
-                //Version anterior hace un find y recorre la lista
-//                    MongoDatabase db = mongoClient().getDatabase(database);
-//                FindIterable<Document> iterable = db.getCollection(collection).find(documento);
-//
-//                iterable.forEach(new Block<Document>() {
-//                    @Override
-//                    public void apply(final Document document) {
-//                        try {
-//                            contador++;
-//                        } catch (Exception e) {
-//                           
-//                            
-//                            
-//                           
-//                            Logger.getLogger(Repository.class.getName() + "count()").log(Level.SEVERE, null, e);
-//                            exception = new Exception("count()", e);
-//                        }
-//                    }
-//                });
+                contador = (int) mongoClient.getDatabase(database).getCollection(collection).countDocuments(documento);
 
             } else {
-                // no tiene parametros
-                
-                contador = (int) mongoClient().getDatabase(database).getCollection(collection).count();
+
+                contador = (int) mongoClient.getDatabase(database).getCollection(collection).countDocuments();
 
             }
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return contador;
     }// </editor-fold>
@@ -1565,28 +1438,10 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
         try {
             contador = 0;
             //Nueva version cuenta directamente con el filtro
- contador = (int) mongoClient().getDatabase(database).getCollection(collection).count(filter);
- //Version anterior carga una lista de docuemnntos y luego cuenta
-//                MongoDatabase db = mongoClient().getDatabase(database);
-//            FindIterable<Document> iterable = db.getCollection(collection).find(filter);
-//
-//            iterable.forEach(new Block<Document>() {
-//                @Override
-//                public void apply(final Document document) {
-//                    try {
-//                        contador++;
-//                    } catch (Exception e) {
-//                       
-//                        
-//                        
-//                       
-//                        Logger.getLogger(Repository.class.getName() + "count()").log(Level.SEVERE, null, e);
-//                        exception = new Exception("count()", e);
-//                    }
-//                }
-//            });
- } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+            contador = (int) mongoClient.getDatabase(database).getCollection(collection).countDocuments(filter);
+
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return contador;
     }// </editor-fold>
@@ -1598,7 +1453,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
      * @return
      */
     public List< T> findAll(Document... docSort) {
-       //Test.msg("---->findAll()::");
+        //Test.msg("---->findAll()::");
         list = new ArrayList<>();
         Document sortQuery = new Document();
         try {
@@ -1606,25 +1461,25 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                 sortQuery = docSort[0];
 
             }
-   
+
             Integer size = count();
             if (size > limitOfDocumentInFindAllMethod) {
                 // JmoordbUtil.warningDialog("findAll()", "Existen " + size + " documentos mejor use findPagination() en lugar de findAll(). Se devolveran los primeros " + limitOfDocumentInFindAllMethod);
                 exception = new Exception("findAll() " + "Existen " + size + " documentos mejor use findPagination() en lugar de findAll(). Se devolveran los primeros " + limitOfDocumentInFindAllMethod);
-                
+
                 list = findPagination(1, limitOfDocumentInFindAllMethod, sortQuery);
-             
+
                 return list;
             }
 
-                MongoDatabase db = mongoClient().getDatabase(database);
-         
+            MongoDatabase db = mongoClient.getDatabase(database);
+
             FindIterable<Document> iterable = db.getCollection(collection).find().sort(sortQuery);
-         
+
             list = iterableList(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -1646,16 +1501,15 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             }
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).
                     find().skip(pageNumber > 0 ? ((pageNumber - 1) * rowsForPage) : 0).
                     limit(rowsForPage).sort(sortQuery);
-            
-      
+
             list = iterableList(iterable);
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -1677,14 +1531,14 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             }
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).
                     find(filter).skip(pageNumber > 0 ? ((pageNumber - 1) * rowsForPage) : 0).
                     limit(rowsForPage).sort(sortQuery);
             list = iterableList(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -1713,14 +1567,14 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                 sortQuery = mongoDBQueryHolder.getSort();
             }
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).
                     find(doc).skip(pageNumber > 0 ? ((pageNumber - 1) * rowsForPage) : 0).
                     limit(rowsForPage).sort(sortQuery);
             list = iterableList(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -1752,19 +1606,19 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             Object t = entityClass.newInstance();
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             Document iterable = db.getCollection(collection).findOneAndUpdate(doc, inc, findOneAndUpdateOptions);
 
             try {
 
                 t1 = (T) documentToJava.fromDocument(entityClass, iterable, embeddedModelList, referencedModelList, microservicesModelList);
 
-           } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+            } catch (Exception e) {
+                excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+            }
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return t1;
@@ -1797,19 +1651,19 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             list = new ArrayList<>();
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             Document iterable = db.getCollection(collection).findOneAndUpdate(doc, inc, findOneAndUpdateOptions);
 
             try {
                 t1 = (T) documentToJava.fromDocument(entityClass, iterable, embeddedModelList, referencedModelList, microservicesModelList);
 //                Method method = entityClass.getDeclaredMethod("toPojo", Document.class);
 //                list.add((T) method.invoke(t, iterable));
-             } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+            } catch (Exception e) {
+                excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+            }
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return t1;
     }// </editor-fold>
@@ -1833,18 +1687,18 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             list = new ArrayList<>();
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             Document iterable = db.getCollection(collection).findOneAndUpdate(doc, inc, findOneAndUpdateOptions);
 
             try {
                 t1 = (T) documentToJava.fromDocument(entityClass, iterable, embeddedModelList, referencedModelList, microservicesModelList);
 
-           } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+            } catch (Exception e) {
+                excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+            }
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return t1;
@@ -1866,40 +1720,40 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             }
             list = new ArrayList<>();
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).find(doc).sort(sortQuery);
             list = iterableList(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
 
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc=" List<T> shell(String shell, Document... docSort)">
-   /**
-    * 
-    * @param shell
-    * @param docSort
-    * @return 
-    */
+    /**
+     *
+     * @param shell
+     * @param docSort
+     * @return
+     */
     public List<T> shell(String shell, Document... docSort) {
         Document sortQuery = new Document();
         try {
-            Document doc= jsonToDocument(shell);
+            Document doc = jsonToDocument(shell);
             if (docSort.length != 0) {
                 sortQuery = docSort[0];
 
             }
             list = new ArrayList<>();
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).find(doc).sort(sortQuery);
             list = iterableList(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -1921,18 +1775,17 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             }
             list = new ArrayList<>();
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).find(builder).sort(sortQuery);
             list = iterableList(iterable);
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
 
     // </editor-fold>
-    
     // <editor-fold defaultstate="collapsed" desc=" findBy(String sql)">
     /**
      *
@@ -1955,12 +1808,12 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                 sortQuery = mongoDBQueryHolder.getSort();
             }
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).find(doc).sort(sortQuery);
             list = iterableList(iterable);
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -1978,16 +1831,17 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
         try {
             list = new ArrayList<>();
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             AggregateIterable<Document> iterable = db.getCollection(collection).aggregate(documentList);
 
             list = processAggregateIterable(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
+
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="aggregate(List<Document> documentList)">
     /**
@@ -2001,13 +1855,13 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
         try {
             list = new ArrayList<>();
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             AggregateIterable<Document> iterable = db.getCollection(collection).aggregate(documentList);
 
             list = processAggregateIterable(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -2026,12 +1880,12 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
         try {
             list = new ArrayList<>();
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             AggregateIterable<Document> iterable = db.getCollection(collection).aggregate(documentList);
             list = processAggregateIterableJmoordbResult(iterable);
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -2050,12 +1904,12 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
         try {
             list = new ArrayList<>();
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             AggregateIterable<Document> iterable = db.getCollection(collection).aggregate(builder);
             list = processAggregateIterableJmoordbResult(iterable);
 
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -2071,11 +1925,11 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             }
             list = new ArrayList<>();
             Document doc = new Document(key, value);
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).find(doc).sort(sortQuery);
             list = iterableList(iterable);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -2097,12 +1951,12 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             }
             list = new ArrayList<>();
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
 
             FindIterable<Document> iterable = db.getCollection(collection).find(filter).sort(sortQuery);
             list = iterableList(iterable);
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -2124,12 +1978,12 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             }
             list = new ArrayList<>();
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
 
             FindIterable<Document> iterable = db.getCollection(collection).find(filter).sort(sortQuery);
             list = iterableList(iterable);
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -2146,8 +2000,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             for (Document name : getMongoDatabase().listCollections()) {
                 list.add(name.get("name").toString());
             }
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -2168,8 +2022,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                 }
             }
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -2185,8 +2039,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
         try {
             getMongoDatabase().createCollection(nameCollection);
             return true;
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -2207,8 +2061,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             return false;
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -2227,8 +2081,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             return true;
 
-      } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -2244,8 +2098,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             return true;
 
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -2257,7 +2111,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             list = new ArrayList<>();
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = getIterable();
             switch (predicate) {
                 case "ascending":
@@ -2271,8 +2125,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -2284,7 +2138,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             list = new ArrayList<>();
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = getIterable();
             switch (predicate) {
                 case "ascending":
@@ -2300,8 +2154,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -2325,7 +2179,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             list = new ArrayList<>();
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = getIterable();
             switch (predicate) {
                 case "eq":
@@ -2341,8 +2195,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -2366,7 +2220,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             list = new ArrayList<>();
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = getIterable();
             switch (predicate) {
                 case "eq":
@@ -2385,8 +2239,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -2419,11 +2273,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 
-            @Override
-            public FindIterable<Document> modifiers(Bson bson) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
+           
             @Override
             public FindIterable<Document> projection(Bson bson) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -2474,10 +2324,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 
-            @Override
-            public void forEach(Block<? super Document> block) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
+         
 
             @Override
             public <A extends Collection<? super Document>> A into(A a) {
@@ -2509,10 +2356,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 
-            @Override
-            public FindIterable<Document> maxScan(long l) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
+          
+          
 
             @Override
             public FindIterable<Document> returnKey(boolean bln) {
@@ -2524,9 +2369,15 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 
+          
             @Override
-            public FindIterable<Document> snapshot(boolean bln) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            public FindIterable<Document> hintString(String string) {
+                throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+            }
+
+            @Override
+            public MongoCursor<Document> cursor() {
+                throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
             }
         };
         return iterable;
@@ -2546,8 +2397,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             if (dr.getDeletedCount() >= 0) {
                 return true;
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -2576,8 +2427,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             if (dr.getDeletedCount() >= 0) {
                 return true;
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -2596,8 +2447,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                 return true;
             }
 
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -2627,8 +2478,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                 return true;
             }
 
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -2645,8 +2496,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Document doc = new Document(key, value);
             DeleteResult dr = getMongoDatabase().getCollection(collection).deleteMany(doc);
             cont = (int) dr.getDeletedCount();
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return cont;
     }// </editor-fold>
@@ -2663,10 +2514,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             DeleteResult dr = getMongoDatabase().getCollection(collection).deleteMany(doc);
             cont = (int) dr.getDeletedCount();
         } catch (Exception e) {
-           
-            
-            
-           
+
             Logger.getLogger(Repository.class.getName() + "deleteManye()").log(Level.SEVERE, null, e);
             exception = new Exception("deleteMany() ", e);
         }
@@ -2694,8 +2542,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             }
             DeleteResult dr = getMongoDatabase().getCollection(collection).deleteMany(doc);
             cont = (int) dr.getDeletedCount();
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return cont;
     }// </editor-fold>
@@ -2712,8 +2560,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             DeleteResult dr = getMongoDatabase().getCollection(collection).deleteMany(new Document());
 
             cont = (int) dr.getDeletedCount();
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return cont;
     }// </editor-fold>
@@ -2740,8 +2588,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             UpdateResult updateResult = getMongoDatabase().getCollection(collection).updateOne(search, doc);
             return (int) updateResult.getModifiedCount();
 
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return 0;
     }// </editor-fold>
@@ -2755,8 +2603,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             UpdateResult updateResult = getMongoDatabase().getCollection(collection).updateOne(docSearch, docUpdate);
             return (int) updateResult.getModifiedCount();
 
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return 0;
     }// </editor-fold>
@@ -2777,8 +2625,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             UpdateResult updateResult = getMongoDatabase().getCollection(collection).updateMany(docSearch, docUpdate);
             return (int) updateResult.getModifiedCount();
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return 0;
     }// </editor-fold>
@@ -2800,8 +2648,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             return (int) updateResult.getModifiedCount();
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return 0;
     }
@@ -2823,8 +2671,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             return (int) updateResult.getModifiedCount();
 
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return 0;
     }// </editor-fold>
@@ -2845,8 +2693,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             UpdateResult updateResult = getMongoDatabase().getCollection(collection).replaceOne(docSearch, docUpdate);
             return (int) updateResult.getModifiedCount();
 
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return 0;
     }// </editor-fold>
@@ -2865,12 +2713,12 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     method = entityClass.getDeclaredMethod(name);
                     o = method.invoke(t2);
 
-               } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return o;
     }// </editor-fold>
@@ -2884,8 +2732,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                 type = p.getType();
 
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return type;
     }// </editor-fold>
@@ -2931,12 +2779,13 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Bson filter = Filters.and(Filters.gte(fieldnamestart, datestartvalue), Filters.lte(fieldlimitname, datelimitvalue));
 
             list = filters(filter, sortQuery);
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
     }
+
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="filterBetweenDate(String fieldnamestart, Date datestartvalue, String fieldlimitname, Date datelimitvalue, Document... docSort)">
     /**
@@ -2958,13 +2807,13 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                 sortQuery = docSort[0];
 
             }
-              Date dateStart = setHourToDate(datestartvalue, 0, 0);
+            Date dateStart = setHourToDate(datestartvalue, 0, 0);
             Date dateEnd = setHourToDate(datelimitvalue, 23, 59);
             Bson filter = Filters.and(Filters.gte(fieldnamestart, dateStart), Filters.lte(fieldlimitname, dateEnd));
 
             list = filters(filter, sortQuery);
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -2997,8 +2846,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             );
 
             list = filters(filter, sortQuery);
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -3031,8 +2880,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             );
 
             list = filters(filter, sortQuery);
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -3064,8 +2913,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             );
 
             list = filters(filter, sortQuery);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -3100,8 +2949,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             );
 
             list = filters(filter, sortQuery);
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -3134,8 +2983,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             );
 
             list = filters(filter, sortQuery);
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -3169,8 +3018,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             );
 
             list = filters(filter, sortQuery);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -3200,8 +3049,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Bson filter = Filters.and(Filters.gte(fieldnamestart, datestartvalue), Filters.lte(fieldlimitname, datelimitvalue));
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -3232,8 +3081,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.gte(fieldnamestart, datestartvalue), Filters.lte(fieldlimitname, datelimitvalue));
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -3266,8 +3115,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.gte(fieldnamestart, dateStart), Filters.lte(fieldlimitname, dateEnd));
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -3301,8 +3150,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.gte(fieldnamestart, dateStart), Filters.lte(fieldlimitname, dateEnd));
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-     } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -3339,8 +3188,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.gte(fieldnamestart, dateStart), Filters.lte(fieldlimitname, dateEnd));
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -3377,8 +3226,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.gte(fieldnamestart, dateStart), Filters.lte(fieldlimitname, dateEnd));
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -3415,8 +3264,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.gte(fieldnamestart, dateStart), Filters.lte(fieldlimitname, dateEnd));
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -3453,8 +3302,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.gte(fieldnamestart, dateStart), Filters.lte(fieldlimitname, dateEnd));
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -3486,8 +3335,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.gte(fieldnamestart, datestartvalue), Filters.lte(fieldlimitname, datelimitvalue));
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -3520,8 +3369,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.gte(fieldnamestart, datestartvalue), Filters.lte(fieldlimitname, datelimitvalue));
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -3555,8 +3404,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.gte(fieldnamestart, dateStart), Filters.lte(fieldlimitname, dateEnd));
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -3588,8 +3437,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             );
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -3623,8 +3472,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             );
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -3654,8 +3503,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Bson filter = Filters.and(Filters.gte(fieldnamestart, startvalue), Filters.lte(fieldlimitname, limitvalue));
 
             list = filters(filter, sortQuery);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -3684,8 +3533,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Bson filter = Filters.and(Filters.gte(fieldnamestart, startvalue), Filters.lte(fieldlimitname, limitvalue));
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -3713,8 +3562,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Bson filter = Filters.and(Filters.gte(fieldnamestart, startvalue), Filters.lte(fieldlimitname, limitvalue));
 
             list = filters(filter, sortQuery);
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -3742,8 +3591,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Bson filter = Filters.and(Filters.gte(fieldnamestart, startvalue), Filters.lte(fieldlimitname, limitvalue));
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -3781,8 +3630,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.lte(fielddate, dateEnd));
 
             list = filters(filter, sortQuery);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -3818,8 +3667,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.lte(fielddate, dateEnd));
 
             list = filters(filter, sortQuery);
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -3854,8 +3703,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.lte(fielddate, dateEnd));
 
             list = filters(filter, sortQuery);
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -3891,8 +3740,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.lte(fielddate, dateEnd));
 
             list = filters(filter, sortQuery);
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -3928,8 +3777,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Bson filter = Filters.and(myfilter, date);
 
             list = filters(filter, sortQuery);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -3963,8 +3812,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Bson filter = Filters.and(Filters.gte(fielddate, dateStart),
                     Filters.lte(fielddate, dateEnd));
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -4002,8 +3851,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.lte(fielddate, dateEnd));
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -4041,8 +3890,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.lte(fielddate, dateEnd));
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -4080,8 +3929,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.lte(fielddate, dateEnd));
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -4118,8 +3967,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                     Filters.lte(fielddate, dateEnd));
 
             list = filtersPagination(filter, pageNumber, rowsForPage, sortQuery);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -4149,7 +3998,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             }
             Object t = entityClass.newInstance();
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection)
                     .find(new Document("$text", new Document("$search", value)
                             .append("$caseSensitive", caseSensitive)
@@ -4157,8 +4006,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -4187,7 +4036,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             }
             Object t = entityClass.newInstance();
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection)
                     .find(new Document("$text", new Document("$search", value)
                             .append("$caseSensitive", caseSensitive)
@@ -4196,8 +4045,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -4223,7 +4072,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             Pattern regex = Pattern.compile(value);
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable;
             if (!caseSensitive) {
                 iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", "^" + value))).sort(sortQuery);
@@ -4237,8 +4086,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -4264,7 +4113,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             Pattern regex = Pattern.compile(value);
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable;
             if (!caseSensitive) {
                 iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", "^" + value)).append(keySecond, valueSecond)).sort(sortQuery);
@@ -4278,8 +4127,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-     } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -4305,7 +4154,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             Pattern regex = Pattern.compile(value);
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable;
             if (!caseSensitive) {
                 switch (typeOfObject(valueSecond)) {
@@ -4355,8 +4204,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -4382,7 +4231,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             Pattern regex = Pattern.compile(value);
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable;
             if (!caseSensitive) {
                 iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", "^" + value)).append(keySecond, valueSecond).append(keyThree, valueTree)).sort(sortQuery);
@@ -4396,13 +4245,12 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
 
- 
     // <editor-fold defaultstate="collapsed" desc="findRegexInText(String key, String value, Boolean caseSensitive, Document... docSort)">
     /**
      *
@@ -4424,7 +4272,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             Pattern regex = Pattern.compile(value);
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable;
             if (!caseSensitive) {
                 iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", value))).sort(sortQuery);
@@ -4436,8 +4284,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -4463,7 +4311,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             Pattern regex = Pattern.compile(value);
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable;
             if (!caseSensitive) {
                 iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", value)).append(keySecond, valueSecond)).sort(sortQuery);
@@ -4476,8 +4324,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -4503,7 +4351,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             Pattern regex = Pattern.compile(value);
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable;
             if (!caseSensitive) {
                 iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", value)).append(keySecond, valueSecond).append(keyThree, valueThree)).sort(sortQuery);
@@ -4516,8 +4364,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>    
@@ -4543,7 +4391,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             Pattern regex = Pattern.compile(value);
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable;
             if (!caseSensitive) {
                 iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", "^" + value))).skip(pageNumber > 0 ? ((pageNumber - 1) * rowsForPage) : 0).
@@ -4559,8 +4407,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -4586,7 +4434,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             Pattern regex = Pattern.compile(value);
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable;
             if (!caseSensitive) {
                 iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", "^" + value)).append(keySecond, valueSecond)).skip(pageNumber > 0 ? ((pageNumber - 1) * rowsForPage) : 0).
@@ -4602,8 +4450,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -4629,7 +4477,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             Pattern regex = Pattern.compile(value);
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable;
             if (!caseSensitive) {
                 iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", "^" + value)).append(keySecond, valueSecond).append(keyThree, valueThree)).skip(pageNumber > 0 ? ((pageNumber - 1) * rowsForPage) : 0).
@@ -4645,8 +4493,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -4673,7 +4521,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             Pattern regex = Pattern.compile(value);
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable;
             if (!caseSensitive) {
                 iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", value))).skip(pageNumber > 0 ? ((pageNumber - 1) * rowsForPage) : 0).
@@ -4688,8 +4536,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -4715,7 +4563,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             Pattern regex = Pattern.compile(value);
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable;
             if (!caseSensitive) {
                 iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", value)).append(keySecond, valueSecond)).skip(pageNumber > 0 ? ((pageNumber - 1) * rowsForPage) : 0).
@@ -4730,8 +4578,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -4757,7 +4605,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
             Object t = entityClass.newInstance();
             Pattern regex = Pattern.compile(value);
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable;
             if (!caseSensitive) {
                 iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", value)).append(keySecond, valueSecond).append(keyThree, valueThree)).skip(pageNumber > 0 ? ((pageNumber - 1) * rowsForPage) : 0).
@@ -4772,8 +4620,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             list = iterableList(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -4807,8 +4655,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
                 }
             }
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return type;
     }
@@ -4848,8 +4696,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             }
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -4869,13 +4717,13 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             }
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).find(docQuery);
 
             list = processUnknownIterableJmoordbResult(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -4896,13 +4744,13 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             }
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).find(doc).sort(sortQuery);
 
             list = processUnknownIterableJmoordbResult(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -4923,13 +4771,13 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             }
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).find(filter).sort(sortQuery);
 
             list = processUnknownIterableJmoordbResult(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }// </editor-fold>
@@ -4950,14 +4798,14 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             }
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).
                     find(sortQuery).skip(pageNumber > 0 ? ((pageNumber - 1) * rowsForPage) : 0).
                     limit(rowsForPage);
             list = processUnknownIterableJmoordbResult(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -4979,14 +4827,14 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 
             }
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).
                     find(doc).skip(pageNumber > 0 ? ((pageNumber - 1) * rowsForPage) : 0).
                     limit(rowsForPage).sort(sortQuery);
             list = processUnknownIterableJmoordbResult(iterable);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return list;
@@ -4997,19 +4845,15 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
         List<JmoordbResult> l = new ArrayList<>();
         List<Map<String, Object>> lObject = new ArrayList<>();
         try {
-            iterable.forEach(new Block<Document>() {
-                @Override
-                public void apply(final Document document) {
-                    try {
+            
+                      Consumer<Document> printConsumer = document -> 
+                               lObject.add(new HashMap<>(document));
+                   
+                    
+            
+iterable.forEach(printConsumer);
 
-                        Map<String, Object> map = new HashMap<>(document);
-                        lObject.add(map);
-
-                  } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
-                }
-            });
+           
             for (Map m : lObject) {
                 JmoordbResult jmoordbResult = new JmoordbResult();
                 for (Iterator it = m.entrySet().iterator(); it.hasNext();) {
@@ -5020,8 +4864,8 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
                 l.add(jmoordbResult);
             }
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return l;
     }// </editor-fold>
@@ -5036,7 +4880,7 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
     public Boolean unknownSave(String database, String collection, Document doc) {
         try {
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             db.getCollection(collection).insertOne(doc);
             return true;
 
@@ -5053,12 +4897,12 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
         Integer documentosModificados = 0;
 
         try {
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             UpdateResult updateResult = db.getCollection(collection).replaceOne(builder, docUpdate);
             return (int) updateResult.getModifiedCount();
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return 0;
     }// </editor-fold>
@@ -5072,14 +4916,14 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
      */
     public Boolean unknownDelete(String database, String collection, Document doc) {
         try {
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             DeleteResult dr = db.getCollection(collection).deleteOne(doc);
             if (dr.getDeletedCount() >= 0) {
                 return true;
             }
 
-      } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -5093,14 +4937,14 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
      */
     public Boolean unknownDelete(String database, String collection, Bson builder) {
         try {
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             DeleteResult dr = db.getCollection(collection).deleteOne(builder);
             if (dr.getDeletedCount() >= 0) {
                 return true;
             }
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -5115,14 +4959,14 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
     public Boolean unknownDeleteAll(String database, String collection) {
         Integer cont = 0;
         try {
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             DeleteResult dr = db.getCollection(collection).deleteMany(new Document());
             if (dr.getDeletedCount() >= 0) {
                 return true;
             }
 
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -5137,14 +4981,14 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
     public Boolean unknownDeleteMany(String database, String collection, Document doc) {
         Integer cont = 0;
         try {
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             DeleteResult dr = db.getCollection(collection).deleteMany(doc);
             if (dr.getDeletedCount() >= 0) {
                 return true;
             }
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -5159,14 +5003,14 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
     public Boolean unknownDeleteMany(String database, String collection, Bson builder) {
         Integer cont = 0;
         try {
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             DeleteResult dr = db.getCollection(collection).deleteMany(builder);
             if (dr.getDeletedCount() >= 0) {
                 return true;
             }
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -5240,20 +5084,19 @@ db.getCollection(collection).find(new Document(key, value)).forEach(printConsume
 //            if (list.isEmpty()) {
 //                return true;
 //            }
-Integer contador = count(filterAll);
+            Integer contador = count(filterAll);
 
-if(contador == 0){
-    
-    return true;
-}
-      } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+            if (contador == 0) {
+
+                return true;
+            }
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }
 
     // </editor-fold>
-    
     // <editor-fold defaultstate="collapsed" desc="isAvailableBetweenDateHourOld(Bson filter, String namefieldOfStart,Date valueStart,namefieldOfEnd,Date valueEnd )">
     /**
      * Devuelve true si no hay registros con la condicion fechay hora de inicio
@@ -5318,7 +5161,6 @@ if(contador == 0){
 
             Bson filterAll = Filters.and(filter, or(b, c_e_f_g_h_l, d, i, j, k));
 
-          
             List<T> list = findBy(filterAll);
 
             if (list.isEmpty()) {
@@ -5328,16 +5170,13 @@ if(contador == 0){
 //if(contador == 0){
 //    return true;
 //}
-      } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }
 
     // </editor-fold>
-    
-    
-    
     // <editor-fold defaultstate="collapsed" desc="List<T> availableBetweenDateHour(Bson filter, String namefieldOfStart, Date valueStart, String namefieldOfEnd, Date valueEnd) ">
     /**
      * Devuelve una lista de los elementos que estan en ese rango de fechas y
@@ -5353,82 +5192,7 @@ if(contador == 0){
      */
     public List<T> availableBetweenDateHour(Bson filter, String namefieldOfStart, Date valueStart, String namefieldOfEnd, Date valueEnd) {
         try {
-          
-          
-            list = new ArrayList<>();
-            Integer count = count();
-            if (count.equals(0)) {
-                return list;
-            }
-            //inicio
 
-           Bson b = Filters.and(
-                    Filters.gt(namefieldOfStart, valueStart),
-                    Filters.lt(namefieldOfStart, valueEnd),
-                    Filters.gt(namefieldOfEnd, valueStart),
-                    Filters.gt(namefieldOfEnd, valueEnd)
-            );
-
-            Bson c_e_f_g_h_l = Filters.or(
-                    Filters.eq(namefieldOfStart, valueStart),
-                    Filters.eq(namefieldOfStart, valueEnd),
-                    Filters.eq(namefieldOfEnd, valueStart),
-                    Filters.eq(namefieldOfEnd, valueEnd)
-            );
-
-            Bson j = Filters.and(
-                    Filters.lt(namefieldOfStart, valueStart),
-                    Filters.lt(namefieldOfStart, valueEnd),
-                    Filters.gt(namefieldOfEnd, valueStart),
-                    Filters.eq(namefieldOfEnd, valueEnd)
-            );
-
-            Bson d = Filters.and(
-                    Filters.gt(namefieldOfStart, valueStart),
-                    Filters.lt(namefieldOfStart, valueEnd),
-                    Filters.gt(namefieldOfEnd, valueStart),
-                    Filters.lt(namefieldOfEnd, valueEnd)
-            );
-            Bson i = Filters.and(
-                    Filters.lt(namefieldOfStart, valueStart),
-                    Filters.lt(namefieldOfStart, valueEnd),
-                    Filters.gt(namefieldOfEnd, valueStart),
-                    Filters.gt(namefieldOfEnd, valueEnd)
-            );
-            Bson k = Filters.and(
-                    Filters.lt(namefieldOfStart, valueStart),
-                    Filters.lt(namefieldOfStart, valueEnd),
-                    Filters.gt(namefieldOfEnd, valueStart),
-                    Filters.lt(namefieldOfEnd, valueEnd)
-            );
-
-            Bson _filter = Filters.and(filter, or(b, c_e_f_g_h_l, d, i, j, k));
-
-
-            list = findBy(_filter);
-
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
-        return list;
-    }
-    // </editor-fold>
-    // <editor-fold defaultstate="collapsed" desc="List<T> notAvailableBetweenDateHour(Bson filter, String namefieldOfStart, Date valueStart, String namefieldOfEnd, Date valueEnd) ">
-    /**
-     * Devuelve una lista de los elementos que estan en ese rango de fechas y
-     * que cumplan la condicion del filtro que se pasa como parametro
-     *
-     * @param filter
-     * @param namefieldOfStart
-     * @param valueStart
-     * @param namefieldOfEnd
-     * @param valueEnd
-     * @return Devuelve una lista de los elementos que estan en ese rango de
-     * fechas y que cumplan la condicion del filtro que se pasa como parametro
-     */
-    public List<T> notAvailableBetweenDateHour(Bson filter, String namefieldOfStart, Date valueStart, String namefieldOfEnd, Date valueEnd) {
-        try {
-          
             list = new ArrayList<>();
             Integer count = count();
             if (count.equals(0)) {
@@ -5480,8 +5244,82 @@ if(contador == 0){
 
             list = findBy(_filter);
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        }
+        return list;
+    }
+
+    // </editor-fold>
+    // <editor-fold defaultstate="collapsed" desc="List<T> notAvailableBetweenDateHour(Bson filter, String namefieldOfStart, Date valueStart, String namefieldOfEnd, Date valueEnd) ">
+    /**
+     * Devuelve una lista de los elementos que estan en ese rango de fechas y
+     * que cumplan la condicion del filtro que se pasa como parametro
+     *
+     * @param filter
+     * @param namefieldOfStart
+     * @param valueStart
+     * @param namefieldOfEnd
+     * @param valueEnd
+     * @return Devuelve una lista de los elementos que estan en ese rango de
+     * fechas y que cumplan la condicion del filtro que se pasa como parametro
+     */
+    public List<T> notAvailableBetweenDateHour(Bson filter, String namefieldOfStart, Date valueStart, String namefieldOfEnd, Date valueEnd) {
+        try {
+
+            list = new ArrayList<>();
+            Integer count = count();
+            if (count.equals(0)) {
+                return list;
+            }
+            //inicio
+
+            Bson b = Filters.and(
+                    Filters.gt(namefieldOfStart, valueStart),
+                    Filters.lt(namefieldOfStart, valueEnd),
+                    Filters.gt(namefieldOfEnd, valueStart),
+                    Filters.gt(namefieldOfEnd, valueEnd)
+            );
+
+            Bson c_e_f_g_h_l = Filters.or(
+                    Filters.eq(namefieldOfStart, valueStart),
+                    Filters.eq(namefieldOfStart, valueEnd),
+                    Filters.eq(namefieldOfEnd, valueStart),
+                    Filters.eq(namefieldOfEnd, valueEnd)
+            );
+
+            Bson j = Filters.and(
+                    Filters.lt(namefieldOfStart, valueStart),
+                    Filters.lt(namefieldOfStart, valueEnd),
+                    Filters.gt(namefieldOfEnd, valueStart),
+                    Filters.eq(namefieldOfEnd, valueEnd)
+            );
+
+            Bson d = Filters.and(
+                    Filters.gt(namefieldOfStart, valueStart),
+                    Filters.lt(namefieldOfStart, valueEnd),
+                    Filters.gt(namefieldOfEnd, valueStart),
+                    Filters.lt(namefieldOfEnd, valueEnd)
+            );
+            Bson i = Filters.and(
+                    Filters.lt(namefieldOfStart, valueStart),
+                    Filters.lt(namefieldOfStart, valueEnd),
+                    Filters.gt(namefieldOfEnd, valueStart),
+                    Filters.gt(namefieldOfEnd, valueEnd)
+            );
+            Bson k = Filters.and(
+                    Filters.lt(namefieldOfStart, valueStart),
+                    Filters.lt(namefieldOfStart, valueEnd),
+                    Filters.gt(namefieldOfEnd, valueStart),
+                    Filters.lt(namefieldOfEnd, valueEnd)
+            );
+
+            Bson _filter = Filters.and(filter, or(b, c_e_f_g_h_l, d, i, j, k));
+
+            list = findBy(_filter);
+
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
@@ -5515,8 +5353,8 @@ if(contador == 0){
             UUID uuid = UUID.randomUUID();
 
             listUserinfo.add(new UserInfo(uuid.toString(), username, date2, description));
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return listUserinfo;
     }  // </editor-fold>
@@ -5539,8 +5377,8 @@ if(contador == 0){
             userinfo.setDatetime(date2);
             userinfo.setDescription(description);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return userinfo;
     }  // </editor-fold>
@@ -5580,8 +5418,8 @@ if(contador == 0){
                 exception = new Exception("No contiene el metodo UserInfo");
             }
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return t1;
     }
@@ -5632,8 +5470,8 @@ if(contador == 0){
 
             }
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return t1;
     }
@@ -5668,8 +5506,8 @@ if(contador == 0){
                     lookup.unreflect(pkProperty.getWriteMethod()));
             pkSetter.accept(t1, valueOfPrimaryKey.toUpperCase());
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return t1;
     }
@@ -5704,8 +5542,8 @@ if(contador == 0){
                     lookup.unreflect(pkProperty.getWriteMethod()));
             pkSetter.accept(t1, valueOfPrimaryKey.toLowerCase());
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return t1;
     }
@@ -5738,8 +5576,8 @@ if(contador == 0){
                     lookup.unreflect(pkProperty.getWriteMethod()));
             pkSetter.accept(t1, valueOfPrimaryKey);
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return t1;
     }
@@ -5787,8 +5625,8 @@ if(contador == 0){
 
                 }
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return t1;
     }
@@ -5820,8 +5658,8 @@ if(contador == 0){
                     lookup.unreflect(pkProperty.getWriteMethod()));
             pkSetter.accept(t1, nameOfCompositeKey);
 
-    } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return t1;
     }
@@ -5897,8 +5735,8 @@ if(contador == 0){
 
                 }
             }
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return t1;
     }
@@ -5930,12 +5768,12 @@ if(contador == 0){
                     }
                     map.put(name, value);
 
-            } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return map;
     }
@@ -5963,9 +5801,9 @@ if(contador == 0){
 
                         doc.put(p.getName(), method.invoke(t2));
 
-                    } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                    } catch (Exception e) {
+                        excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                    }
                 }
                 T t_ = (T) find(doc);
                 if (t_ == null) {
@@ -5978,8 +5816,8 @@ if(contador == 0){
                 exception = new Exception("No tiene llaves secundaria @Composite no se puede buscar");
                 return false;
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -6003,16 +5841,16 @@ if(contador == 0){
                     try {
                         method = entityClass.getDeclaredMethod(name);
                         doc.put(p.getName(), method.invoke(t2));
-                  } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                    } catch (Exception e) {
+                        excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                    }
                 }
                 return find(doc);
             } else {
                 return Optional.empty();
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return Optional.empty();
     }// </editor-fold>
@@ -6030,8 +5868,8 @@ if(contador == 0){
                 return Optional.of(t_);
             }
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return Optional.empty();
     }// </editor-fold>
@@ -6054,12 +5892,12 @@ if(contador == 0){
 
                     doc.put(p.getName(), method.invoke(t2));
 
-               } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-      } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return doc;
     }// </editor-fold>
@@ -6084,12 +5922,12 @@ if(contador == 0){
                     doc.put(p.getName(), method.invoke(t2));
 
                     return find(doc);
-                } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return Optional.empty();
     }// </editor-fold>
@@ -6120,12 +5958,12 @@ if(contador == 0){
                     }
 
                     //    doc.put(p.getName(), method.invoke(t2));
-                 } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return value;
     }// </editor-fold>
@@ -6152,8 +5990,8 @@ if(contador == 0){
 
                 //    doc.put(p.getName(), method.invoke(t2));
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return value;
     }// </editor-fold>
@@ -6184,12 +6022,12 @@ if(contador == 0){
                     }
 
                     //    doc.put(p.getName(), method.invoke(t2));
-                 } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return value;
     }// </editor-fold>
@@ -6220,12 +6058,12 @@ if(contador == 0){
                     }
                     map.put(p.getName(), value);
 
-              } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return map;
     }// </editor-fold>
@@ -6246,8 +6084,8 @@ if(contador == 0){
                 name = util.letterToLower(p.getName());
 
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return name;
     }// </editor-fold>
@@ -6278,12 +6116,12 @@ if(contador == 0){
                     } else {
                         return true;
                     }
-                } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -6317,8 +6155,8 @@ if(contador == 0){
                     lookup.unreflect(pkProperty.getWriteMethod()));
             pkSetter.accept(t1, valueOfSecondaryKey.toUpperCase());
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return t1;
     }
@@ -6353,8 +6191,8 @@ if(contador == 0){
                     lookup.unreflect(pkProperty.getWriteMethod()));
             pkSetter.accept(t1, valueOfSecondaryKey.toLowerCase());
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return t1;
     }
@@ -6378,12 +6216,12 @@ if(contador == 0){
 
                     doc.put(p.getName(), method.invoke(t2));
 
-             } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return doc;
     }// </editor-fold>
@@ -6408,12 +6246,12 @@ if(contador == 0){
                     doc.put(p.getName(), method.invoke(t2));
 
                     return find(doc);
-               } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return Optional.empty();
     }// </editor-fold>
@@ -6444,12 +6282,12 @@ if(contador == 0){
                     }
 
                     //    doc.put(p.getName(), method.invoke(t2));
-                 } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return value;
     }// </editor-fold>
@@ -6476,8 +6314,8 @@ if(contador == 0){
 
                 //    doc.put(p.getName(), method.invoke(t2));
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return value;
     }// </editor-fold>
@@ -6508,12 +6346,12 @@ if(contador == 0){
                     }
 
                     //    doc.put(p.getName(), method.invoke(t2));
-              } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return value;
     }// </editor-fold>
@@ -6544,12 +6382,12 @@ if(contador == 0){
                     }
                     map.put(p.getName(), value);
 
-              } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return map;
     }// </editor-fold>
@@ -6570,8 +6408,8 @@ if(contador == 0){
                 name = util.letterToLower(p.getName());
 
             }
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return name;
     }// </editor-fold>
@@ -6602,12 +6440,12 @@ if(contador == 0){
                     } else {
                         return true;
                     }
-              } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return false;
     }// </editor-fold>
@@ -6641,8 +6479,8 @@ if(contador == 0){
                     lookup.unreflect(pkProperty.getWriteMethod()));
             pkSetter.accept(t1, valueOfTertiaryKey.toUpperCase());
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return t1;
     }
@@ -6677,8 +6515,8 @@ if(contador == 0){
                     lookup.unreflect(pkProperty.getWriteMethod()));
             pkSetter.accept(t1, valueOfTertiaryKey.toLowerCase());
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return t1;
     }
@@ -6711,8 +6549,8 @@ if(contador == 0){
                     lookup.unreflect(pkProperty.getWriteMethod()));
             pkSetter.accept(t1, valueOfTertiaryKey);
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return t1;
     }
@@ -6744,12 +6582,12 @@ if(contador == 0){
                     }
                     map.put(name, value);
 
-               } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+                } catch (Exception e) {
+                    excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+                }
             }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return map;
     }
@@ -6782,8 +6620,8 @@ if(contador == 0){
                     lookup.unreflect(pkProperty.getWriteMethod()));
             pkSetter.accept(t1, valueOfSecondaryKey);
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return t1;
     }
@@ -6801,7 +6639,7 @@ if(contador == 0){
         Document sortQuery = new Document();
         try {
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
             Document stats = db.runCommand(new Document("dbstats", 1));
 
             for (Map.Entry<String, Object> set : stats.entrySet()) {
@@ -6846,8 +6684,8 @@ if(contador == 0){
 
             }
 
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return jmoordbStatistics;
@@ -6866,12 +6704,12 @@ if(contador == 0){
         Document sortQuery = new Document();
         try {
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+            MongoDatabase db = mongoClient.getDatabase(database);
 
             Document stats = db.runCommand(new Document("setParameter:", 1).append("internalQueryExecMaxBlockingSortBytes", bytes));
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return success;
     }// </editor-fold>
@@ -6885,452 +6723,432 @@ if(contador == 0){
     public T createEntity() {
         try {
             return ((Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return null;
     }// </editor-fold>
-    
+
     // <editor-fold defaultstate="collapsed" desc=" findBy(Document doc, Document... docSort)">
     /**
-     *USA EL QUERY PARA EJECUTAR LAS OPERACIONES
+     * USA EL QUERY PARA EJECUTAR LAS OPERACIONES
+     *
      * @param doc
      * @param docSort
      * @return
      */
-    public List<T> findBy(Query query, Sorter sorter) {
-     querySearch = new Document();
+    public List<T> findBy(QuerySorter query, Sorter sorter) {
+        querySearch = new Document();
         querySorter = new Document();
-        try {          
-           querySorter = queryCreateSort(query.getSorted());
-           list = new ArrayList<>();
-                MongoDatabase db = mongoClient().getDatabase(database);
+        try {
+            querySorter = queryCreateSort(query.getSorted());
+            list = new ArrayList<>();
+            MongoDatabase db = mongoClient.getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).find(querySearch).sort(querySorter);
             list = iterableList(iterable);
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return list;
     }
 
     // </editor-fold>
-    
     // <editor-fold defaultstate="collapsed" desc="Document queryCreateSort(Sorter sorter)">
     /**
      * para query devuelve un Document sort
      *
      * @return
      */
-    public  Document queryCreateSort(Sorter sorter) {
-         try{
-             
-             if(sorter.getSort().equals(Sort.ASC)){ 
-                 querySorter.append(sorter.getField() ,1);
-             }else{
-                  if(sorter.getSort().equals(Sort.DESC)){
-                  querySorter.append(sorter.getField() ,-1);
-              }
-             }
-             
-          if(sorter.getSorter() ==null){
-          
+    public Document queryCreateSort(Sorter sorter) {
+        try {
+
+            if (sorter.getSort().equals(Sort.ASC)) {
+                querySorter.append(sorter.getField(), 1);
+            } else {
+                if (sorter.getSort().equals(Sort.DESC)) {
+                    querySorter.append(sorter.getField(), -1);
+                }
+            }
+
+            if (sorter.getSorter() == null) {
+
                 return querySorter;
-            }else{
+            } else {
                 return queryCreateSort(sorter.getSorter());
             }
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return querySorter;
     }// </editor-fold>
 
-    
-    
     // <editor-fold defaultstate="collapsed" desc="Bson createBsonBetweenDateWithoutHours(String fieldnamestart, Date datestartvalue, String fieldlimitname, Date datelimitvalue) {">
     /**
-   crea un filtro Bson entre fechas tomando en cuenta la hora
+     * crea un filtro Bson entre fechas tomando en cuenta la hora
+     *
      * @param fieldnamestart
      * @param datestartvalue
      * @param fieldlimitname
      * @param datelimitvalue
      * @param docSort
-     * @return 
+     * @return
      */
     public Bson createBsonBetweenDateWithoutHours(String fieldnamestart, Date datestartvalue, String fieldlimitname, Date datelimitvalue) {
         Bson filter = new Document();
         try {
-      
-              Date dateStart = setHourToDate(datestartvalue, 0, 0);
+
+            Date dateStart = setHourToDate(datestartvalue, 0, 0);
             Date dateEnd = setHourToDate(datelimitvalue, 23, 59);
-       filter = Filters.and(Filters.gte(fieldnamestart, dateStart), Filters.lte(fieldlimitname, dateEnd));
-return filter;
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+            filter = Filters.and(Filters.gte(fieldnamestart, dateStart), Filters.lte(fieldlimitname, dateEnd));
+            return filter;
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return filter;
     }
+
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Bson createBsonBetweenDateWithoutHours(String fieldnamestart, Date datestartvalue, String fieldlimitname, Date datelimitvalue) {">
     /**
      * crea un filtro Bson entre fechas sin tomar en cuenta la hora
+     *
      * @param fieldnamestart
      * @param datestartvalue
      * @param fieldlimitname
      * @param datelimitvalue
-     * @return 
+     * @return
      */
     public Bson createBsonBetweenDateUsingHours(String fieldnamestart, Date datestartvalue, String fieldlimitname, Date datelimitvalue) {
-   Bson filter = new Document();
+        Bson filter = new Document();
         try {
-      
-              Date dateStart = setHourToDate(datestartvalue, 0, 0);
-            Date dateEnd = setHourToDate(datelimitvalue, 23, 59);
-            filter = Filters.and(Filters.gte(fieldnamestart, datestartvalue), Filters.lte(fieldlimitname,  datelimitvalue));
-            
 
-return filter;
-         } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+            Date dateStart = setHourToDate(datestartvalue, 0, 0);
+            Date dateEnd = setHourToDate(datelimitvalue, 23, 59);
+            filter = Filters.and(Filters.gte(fieldnamestart, datestartvalue), Filters.lte(fieldlimitname, datelimitvalue));
+
+            return filter;
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return filter;
     }
     // </editor-fold>
-    
-     // <editor-fold defaultstate="collapsed" desc="public Document sortBuilder(String sortfield, String order  )">
+
+    // <editor-fold defaultstate="collapsed" desc="public Document sortBuilder(String sortfield, String order  )">
     /**
      * crea un documento para ordenar
+     *
      * @param sortfield
      * @param order: asc/desc
-     * @return 
+     * @return
      */
-    public Document sortBuilder(String sortfield, String order  ){
-            Document sort = new Document();
+    public Document sortBuilder(String sortfield, String order) {
+        Document sort = new Document();
         try {
-          
-          if(sortfield == null || sortfield.equals("")){
-            
-          }else{
-             return new Document(sortfield, createOrder(order));
-          }
-        } catch (Exception e) {           
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
-        return sort;
-    }
-       // </editor-fold>
-    
-     // <editor-fold defaultstate="collapsed" desc="Document sortBuilder(HashMap<String,String>hashmap )>
-  /**
-   * crea un document sort en base a un hashmap
-   * @param hashmap
-   * @return 
-   */
-    public Document sortBuilder(HashMap<String,String>map ){
-            Document sort = new Document();
-        try {
-          
-          sort.toJson();
-          
-            
-          if(map == null || map.isEmpty()){
-            
-          }else{
-              
-              map.entrySet().forEach(m -> {
-                  sort.append(m.getKey().toString(),createOrder(m.getValue().toString())) ;
-              });  
 
-          }
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+            if (sortfield == null || sortfield.equals("")) {
+
+            } else {
+                return new Document(sortfield, createOrder(order));
+            }
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
         return sort;
     }
-       // </editor-fold>
-    
-    
-    
-    
-      // <editor-fold defaultstate="collapsed" desc="Integer createOrder(String sorter)">
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Document sortBuilder(HashMap<String,String>hashmap )>
+    /**
+     * crea un document sort en base a un hashmap
+     *
+     * @param hashmap
+     * @return
+     */
+    public Document sortBuilder(HashMap<String, String> map) {
+        Document sort = new Document();
+        try {
+
+            sort.toJson();
+
+            if (map == null || map.isEmpty()) {
+
+            } else {
+
+                map.entrySet().forEach(m -> {
+                    sort.append(m.getKey().toString(), createOrder(m.getValue().toString()));
+                });
+
+            }
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+        }
+        return sort;
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Integer createOrder(String sorter)">
     /**
      * devuelve el indice de ordenacion
+     *
      * @param sorter
-     * @return 
+     * @return
      */
-   
- private Integer createOrder(String sorter){
-     Integer ordernumber =1;
-     try {
-sorter = sorter.trim().toLowerCase();
-switch(sorter){
-    case "asc":
-        ordernumber=1;
-        break;
-    case "desc":
-        ordernumber=-1; 
-        break;
-        default:
-           ordernumber=1;
-}
-     } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+    private Integer createOrder(String sorter) {
+        Integer ordernumber = 1;
+        try {
+            sorter = sorter.trim().toLowerCase();
+            switch (sorter) {
+                case "asc":
+                    ordernumber = 1;
+                    break;
+                case "desc":
+                    ordernumber = -1;
+                    break;
+                default:
+                    ordernumber = 1;
+            }
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
-     return ordernumber;
- }
-   // </editor-fold>
- 
- 
-  // <editor-fold defaultstate="collapsed" desc="public Document sortBuilder(String sortfield, String order  )">
+        return ordernumber;
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="public Document sortBuilder(String sortfield, String order  )">
     /**
      * crea un documento para ordenar
+     *
      * @param sortfield
      * @param order: asc/desc
-     * @return 
+     * @return
      */
-    public Bson filterEQBuilder(String fieldname, String value,String fieldtype  ){
-        
-     
-          Bson filter  ;
-         try{
-fieldtype = fieldtype.toLowerCase();
-         switch(fieldtype){
-             case "integer":
-                 filter =Filters.eq(fieldname,Integer.parseInt(value));
-                 break;
-             case "double":
-                 filter =Filters.eq(fieldname,Double.parseDouble(value));
-                 break;
-             case "string":
-                  filter =Filters.eq(fieldname,value);
-                  break;
-             case "date":
-                  filter =Filters.eq(fieldname,JmoordbDateUtil.stringToISODate(value));
-             case "boolean":
-                 Boolean valueBoolean =false;
-                 if(value.equals("true")){
-                     valueBoolean=true;
-                 }
-                  filter =Filters.eq(fieldname,valueBoolean);
-                  break;
-             default:
-                 filter =Filters.eq(fieldname,value);
-                 
-         }
-         
-        } catch (Exception e) {    
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+    public Bson filterEQBuilder(String fieldname, String value, String fieldtype) {
+
+        Bson filter;
+        try {
+            fieldtype = fieldtype.toLowerCase();
+            switch (fieldtype) {
+                case "integer":
+                    filter = Filters.eq(fieldname, Integer.parseInt(value));
+                    break;
+                case "double":
+                    filter = Filters.eq(fieldname, Double.parseDouble(value));
+                    break;
+                case "string":
+                    filter = Filters.eq(fieldname, value);
+                    break;
+                case "date":
+                    filter = Filters.eq(fieldname, JmoordbDateUtil.stringToISODate(value));
+                case "boolean":
+                    Boolean valueBoolean = false;
+                    if (value.equals("true")) {
+                        valueBoolean = true;
+                    }
+                    filter = Filters.eq(fieldname, valueBoolean);
+                    break;
+                default:
+                    filter = Filters.eq(fieldname, value);
+
+            }
+
+        } catch (Exception e) {
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
-            return null;
-        
+        return null;
+
     }
-       // </editor-fold>
-    
+    // </editor-fold>
+
     // <editor-fold defaultstate="collapsed" desc="Document jsonToDocument(String json)">
     /**
      * Convierte un Json a Document
+     *
      * @param json
-     * @return 
+     * @return
      */
-    public Document jsonToDocument(String json){
+    public Document jsonToDocument(String json) {
         return Document.parse(json.toString());
     }
+
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="String documentToJson(Document doc)">
     /**
      * convierre un Document a Json
+     *
      * @param doc
-     * @return 
+     * @return
      */
-    public String documentToJson(Document doc){
+    public String documentToJson(Document doc) {
         return doc.toJson();
     }
     // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="String documentToJson(Document doc)">
+    private void excepcionManager(String nameOfClass, String method, String error, Exception e) {
 
-  // <editor-fold defaultstate="collapsed" desc="String documentToJson(Document doc)">
-        private void excepcionManager(String nameOfClass, String method, String error, Exception e){
-            
-            System.out.println("Class:" + nameOfClass+ " Metodo:" + method);
-            System.out.println("Error " + e.getLocalizedMessage());
-           
-            Logger.getLogger(Repository.class.getName() + "sizeOfPage()").log(Level.SEVERE, null, e);
-            exception = new Exception(method, e);
-        }
-        
-        // </editor-fold>
-        
-        
-  // <editor-fold defaultstate="collapsed" desc="T search(String key, Integer value)">
+        System.out.println("Class:" + nameOfClass + " Metodo:" + method);
+        System.out.println("Error " + e.getLocalizedMessage());
 
+        Logger.getLogger(Repository.class.getName() + "sizeOfPage()").log(Level.SEVERE, null, e);
+        exception = new Exception(method, e);
+    }
+
+    // </editor-fold>
+    // <editor-fold defaultstate="collapsed" desc="T search(String key, Integer value)">
     public T clientEndPoint(MicroservicesModel microservicesModel, String key, Integer value) {
         try {
- HttpAuthenticationFeature httpAuthenticationFeature = null;
-            System.out.println("Test --> microservicesModel.getUser() "+microservicesModel.getUser());
-            System.out.println("Test --> microservicesModel.getPassword() "+microservicesModel.getPassword());
-            System.out.println("Test -->microservicesModel.getUrl() "+microservicesModel.getUrl());
-            System.out.println("Test -->microservicesModel.getField() "+microservicesModel.getField());
-            System.out.println("Test -->value "+value);
+            HttpAuthenticationFeature httpAuthenticationFeature = null;
+            System.out.println("Test --> microservicesModel.getUser() " + microservicesModel.getUser());
+            System.out.println("Test --> microservicesModel.getPassword() " + microservicesModel.getPassword());
+            System.out.println("Test -->microservicesModel.getUrl() " + microservicesModel.getUrl());
+            System.out.println("Test -->microservicesModel.getField() " + microservicesModel.getField());
+            System.out.println("Test -->value " + value);
             Client client = ClientBuilder.newClient();
-            client.register(httpAuthenticationFeature(microservicesModel.getUser(),microservicesModel.getPassword()));
-          tlocal = (T) client
+            client.register(httpAuthenticationFeature(microservicesModel.getUser(), microservicesModel.getPassword()));
+            tlocal = (T) client
                     .target(microservicesModel.getUrl())
-                    .path("/{" +microservicesModel.getField() +"}")
+                    .path("/{" + microservicesModel.getField() + "}")
                     .resolveTemplate(microservicesModel.getField(), value)
                     .request(MediaType.APPLICATION_JSON)
                     .get(tlocal.getClass());
-          
-          return tlocal;
-           
-         } catch (Exception e) {    
-             System.out.println("clientEndPoint() "+e.getLocalizedMessage());
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+
+            return tlocal;
+
+        } catch (Exception e) {
+            System.out.println("clientEndPoint() " + e.getLocalizedMessage());
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return null;
 
     }// </editor-fold>
-    
-  // <editor-fold defaultstate="collapsed" desc="T search(String key, String value)">
 
+    // <editor-fold defaultstate="collapsed" desc="T search(String key, String value)">
     public T clientEndPoint(MicroservicesModel microservicesModel, String key, String value) {
         try {
-            
-           
+
 // HttpAuthenticationFeature httpAuthenticationFeature =  
 //          HttpAuthenticationFeature.basic(
 //                 JmoordbUtil.desencriptar(microservicesModel.getUser()),
 //                 JmoordbUtil.desencriptar(microservicesModel.getPassword()));
-            System.out.println("Test --> microservicesModel.getUser() "+JmoordbUtil.desencriptar(microservicesModel.getUser()));
-            System.out.println("Test --> microservicesModel.getPassword() "+JmoordbUtil.desencriptar(microservicesModel.getPassword()));
-            System.out.println("Test -->microservicesModel.getUrl() "+microservicesModel.getUrl());
-            System.out.println("Test -->microservicesModel.getField() "+microservicesModel.getField());
-            System.out.println("Test -->value "+value);
+            System.out.println("Test --> microservicesModel.getUser() " + JmoordbUtil.desencriptar(microservicesModel.getUser()));
+            System.out.println("Test --> microservicesModel.getPassword() " + JmoordbUtil.desencriptar(microservicesModel.getPassword()));
+            System.out.println("Test -->microservicesModel.getUrl() " + microservicesModel.getUrl());
+            System.out.println("Test -->microservicesModel.getField() " + microservicesModel.getField());
+            System.out.println("Test -->value " + value);
 //            System.out.println("Text-->tlocal.getClass() "+tlocal.getClass());
 
             System.out.println("Test--> fijo");
-              HttpAuthenticationFeature httpAuthenticationFeature = HttpAuthenticationFeature.basicBuilder()
-          .credentials(JmoordbUtil.desencriptar(microservicesModel.getUser()), JmoordbUtil.desencriptar(microservicesModel.getPassword()))
-          .build();
- Client client = ClientBuilder.newClient();
- client.register(httpAuthenticationFeature);
+            HttpAuthenticationFeature httpAuthenticationFeature = HttpAuthenticationFeature.basicBuilder()
+                    .credentials(JmoordbUtil.desencriptar(microservicesModel.getUser()), JmoordbUtil.desencriptar(microservicesModel.getPassword()))
+                    .build();
+            Client client = ClientBuilder.newClient();
+            client.register(httpAuthenticationFeature);
 //  WebTarget webTarget = client.target("http://localhost:9001/autentificacion/resources/user/search").path("username")
 //    .path("/aristides.villarreal");
 //  Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
 //  Response response = invocationBuilder.put(Entity.entity(user, MediaType.APPLICATION_JSON));
 
-  
-    String entity = client.target("http://localhost:9001/autentificacion/resources/javaee8")
-    .request(MediaType.APPLICATION_JSON).get(String.class);
+            String entity = client.target("http://localhost:9001/autentificacion/resources/javaee8")
+                    .request(MediaType.APPLICATION_JSON).get(String.class);
 //    String entity = client.target("http://localhost:9001/autentificacion/resources/user/search").path("username/aristides.villarreal")
 //    .request(MediaType.APPLICATION_JSON).get(String.class);
 
-  System.out.println("Test--> entity" +entity);
-//  String userJson = response.readEntity(String.class);
-//
-//  System.out.println(response.getStatus());
-//  System.out.println(userJson);
+            System.out.println("Test--> entity" + entity);
+            //  String userJson = response.readEntity(String.class);
+            //
+            //  System.out.println(response.getStatus());
+            //  System.out.println(userJson);
 
-// JerseyClient jerseyClient = JerseyClientBuilder.createClient();
-//  jerseyClient.register(httpAuthenticationFeature);
-  
-//  String entity = client.target("http://localhost:8080/jersey-crud-example/api").path("users").path("user/100")
-//  WebTarget target = jerseyClient.target(microservicesModel.getUrl());
-//    WebTarget target = jerseyClient.target(microservicesModel.getUrl()).path(microservicesModel.getField().trim()).path(value);
-//            System.out.println("Test--> target "+target.getUri().getPath());
-//    Response response = target.request(MediaType.APPLICATION_JSON).get();
-//            System.out.println("Test-->response.toString() "+ response.toString());
-//    // Status HTTP de retorno
-//    int status = response.getStatus();
-//            System.out.println("Test---> status"+status);
-//    // Lï¿½ um Carro (converte diretamente da string do JSON)
-//    T c = (T)response.readEntity(tlocal.getClass());
-    
-//  Invocation.Builder invocationBuilder =  target.request(MediaType.APPLICATION_JSON_TYPE);
-//  String response = invocationBuilder.put(Entity.entity(requestBody, MediaType.APPLICATION_JSON_TYPE)).readEntity(String.class);
+            // JerseyClient jerseyClient = JerseyClientBuilder.createClient();
+            //  jerseyClient.register(httpAuthenticationFeature);
 
+            //  String entity = client.target("http://localhost:8080/jersey-crud-example/api").path("users").path("user/100")
+            //  WebTarget target = jerseyClient.target(microservicesModel.getUrl());
+            //    WebTarget target = jerseyClient.target(microservicesModel.getUrl()).path(microservicesModel.getField().trim()).path(value);
+            //            System.out.println("Test--> target "+target.getUri().getPath());
+            //    Response response = target.request(MediaType.APPLICATION_JSON).get();
+            //            System.out.println("Test-->response.toString() "+ response.toString());
+            //    // Status HTTP de retorno
+            //    int status = response.getStatus();
+            //            System.out.println("Test---> status"+status);
+            //    // Lï¿½ um Carro (converte diretamente da string do JSON)
+            //    T c = (T)response.readEntity(tlocal.getClass());
 
+            //  Invocation.Builder invocationBuilder =  target.request(MediaType.APPLICATION_JSON_TYPE);
+            //  String response = invocationBuilder.put(Entity.entity(requestBody, MediaType.APPLICATION_JSON_TYPE)).readEntity(String.class);
 
-//  return response;
-  
-// 
-//            Client client = ClientBuilder.newClient();
-//            client.register(httpAuthenticationFeature);
-//            System.out.println("Test--> name ");
-//            String path ="/{" +microservicesModel.getField().trim() +"}";
-//            System.out.println("Test-->path "+path);
-//           String field =microservicesModel.getField().trim();
-//            System.out.println("Test-->field "+field);
-//       String  json =client
-//                    .target(microservicesModel.getUrl())
-//                    .path(path)
-//                    .resolveTemplate(microservicesModel.getField().trim(), value)
-//                    .request(MediaType.APPLICATION_JSON)
-//                    .get(String.class);
-       
-//       
-//        tlocal = (T)client
-//                    .target(microservicesModel.getUrl())
-//                    .path(path)
-//                    .resolveTemplate(field, value)
-//                    .request(MediaType.APPLICATION_JSON)
-//                    .get(tlocal.getClass());
-//            System.out.println("==================================================");
-////            System.out.println("Test--> json "+json);
-//            System.out.println("==================================================");
-//            Jsonb jsonb = JsonbBuilder.create();
-//     tlocal  = jsonb.fromJson(jsonb,(T)tlocal);
-//             tlocal = (T)client
-//                    .target(microservicesModel.getUrl())
-//                    .path("/{" +microservicesModel.getField().trim() +"}")
-//                    .resolveTemplate(microservicesModel.getField().trim(), value)
-//                    .request(MediaType.APPLICATION_JSON)
-//                    .get(tlocal.getClass());
-             
+            //  return response;
 
-             
-//          tlocal =(T)client
-//                    .target(microservicesModel.getUrl())
-//                    .path("/{" +microservicesModel.getField().trim() +"}")
-//                    .resolveTemplate(microservicesModel.getField().trim(), value)
-//                    .request(MediaType.APPLICATION_JSON)
-//                    .get(new GenericEntity<tlocal>());
-//          tlocal =client
-//                    .target(microservicesModel.getUrl())
-//                    .path("/{" +microservicesModel.getField().trim() +"}")
-//                    .resolveTemplate(microservicesModel.getField().trim(), value)
-//                    .request(MediaType.APPLICATION_JSON)
-//                    .get( new GenericType<T>() {});
-          
-//          (Class<T>) 
-         ;
+            // 
+            //            Client client = ClientBuilder.newClient();
+            //            client.register(httpAuthenticationFeature);
+            //            System.out.println("Test--> name ");
+            //            String path ="/{" +microservicesModel.getField().trim() +"}";
+            //            System.out.println("Test-->path "+path);
+            //           String field =microservicesModel.getField().trim();
+            //            System.out.println("Test-->field "+field);
+            //       String  json =client
+            //                    .target(microservicesModel.getUrl())
+            //                    .path(path)
+            //                    .resolveTemplate(microservicesModel.getField().trim(), value)
+            //                    .request(MediaType.APPLICATION_JSON)
+            //                    .get(String.class);
+
+            //       
+            //        tlocal = (T)client
+            //                    .target(microservicesModel.getUrl())
+            //                    .path(path)
+            //                    .resolveTemplate(field, value)
+            //                    .request(MediaType.APPLICATION_JSON)
+            //                    .get(tlocal.getClass());
+            //            System.out.println("==================================================");
+            ////            System.out.println("Test--> json "+json);
+            //            System.out.println("==================================================");
+            //            Jsonb jsonb = JsonbBuilder.create();
+            //     tlocal  = jsonb.fromJson(jsonb,(T)tlocal);
+            //             tlocal = (T)client
+            //                    .target(microservicesModel.getUrl())
+            //                    .path("/{" +microservicesModel.getField().trim() +"}")
+            //                    .resolveTemplate(microservicesModel.getField().trim(), value)
+            //                    .request(MediaType.APPLICATION_JSON)
+            //                    .get(tlocal.getClass());
+
+            //          tlocal =(T)client
+            //                    .target(microservicesModel.getUrl())
+            //                    .path("/{" +microservicesModel.getField().trim() +"}")
+            //                    .resolveTemplate(microservicesModel.getField().trim(), value)
+            //                    .request(MediaType.APPLICATION_JSON)
+            //                    .get(new GenericEntity<tlocal>());
+            //          tlocal =client
+            //                    .target(microservicesModel.getUrl())
+            //                    .path("/{" +microservicesModel.getField().trim() +"}")
+            //                    .resolveTemplate(microservicesModel.getField().trim(), value)
+            //                    .request(MediaType.APPLICATION_JSON)
+            //                    .get( new GenericType<T>() {});
+
+            //          (Class<T>) 
+            ;
 //          tlocal = (T) client
 //                    .target(microservicesModel.getUrl())
 //                    .path("/{" +microservicesModel.getField().trim() +"}")
 //                    .resolveTemplate(microservicesModel.getField().trim(), value)
 //                    .request(MediaType.APPLICATION_JSON)
 //                    .get(tlocal.getClass());
-          
-          
-          
-          
-          return tlocal;
-          
-           
-         } catch (Exception e) {    
-             System.out.println("clientEndPoint() "+e.getLocalizedMessage());
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
+
+            return tlocal;
+
+        } catch (Exception e) {
+            System.out.println("clientEndPoint() " + e.getLocalizedMessage());
+            excepcionManager(JmoordbUtil.nameOfClass(), JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
         }
 
         return null;
 
     }// </editor-fold>
-    
-  
-    
- 
-    
-    
+
     // <editor-fold defaultstate="collapsed" desc="HttpAuthenticationFeature httpAuthenticationFeature()">
     /**
      * Devuelve la autentificacion para ser usada con el Client
@@ -7340,14 +7158,14 @@ fieldtype = fieldtype.toLowerCase();
     public HttpAuthenticationFeature httpAuthenticationFeature(String user, String password) {
         HttpAuthenticationFeature httpAuthenticationFeature = null;
         try {
-          String   userAutentification = JmoordbUtil.desencriptar(user);
+            String userAutentification = JmoordbUtil.desencriptar(user);
             String passwordAutentification = JmoordbUtil.desencriptar(password);
-            httpAuthenticationFeature = HttpAuthenticationFeature.basic(userAutentification,  passwordAutentification);
+            httpAuthenticationFeature = HttpAuthenticationFeature.basic(userAutentification, passwordAutentification);
 
         } catch (Exception e) {
-            
-            System.out.println(" httpAuthenticationFeature() "+e.getLocalizedMessage());
- 
+
+            System.out.println(" httpAuthenticationFeature() " + e.getLocalizedMessage());
+
         }
 
         return httpAuthenticationFeature;
@@ -7355,48 +7173,4 @@ fieldtype = fieldtype.toLowerCase();
 
     // </editor-fold>
     
-    
-     public MongoClient mongoClient() {
-        MongoClient mongo = new MongoClient("localhost", 27017);
-        try {
-            String uri = JmoordbContext.get("uri") == null ? "" : (String) JmoordbContext.get("uri");
-            if (uri == null || uri.isEmpty()) {
-                String username = JmoordbContext.get("username") == null ? "" : (String) JmoordbContext.get("username");
-                String password = JmoordbContext.get("password") == null ? "" : (String) JmoordbContext.get("password");
-                String database = JmoordbContext.get("database") == null ? "" : (String) JmoordbContext.get("database");
-                String host = JmoordbContext.get("host") == null ? "" : (String) JmoordbContext.get("host");
-                String port = JmoordbContext.get("port") == null ? "" : (String) JmoordbContext.get("port");
-                Boolean security = JmoordbContext.get("security") == null ? false : (Boolean) JmoordbContext.get("security");
-                if (security == null && username == null) {
-                    security = false;
-                }
-                if (security) {
-
-                    char[] charArray = password.toCharArray();
-                    MongoCredential credential = MongoCredential.createCredential(username, database, charArray);
-                    ServerAddress serverAddress = new ServerAddress(host, Integer.parseInt(port));
-//             mongo = new MongoClient(serverAddress, new ArrayList<>());
-
-                    mongo = new MongoClient(serverAddress, new ArrayList<MongoCredential>() {
-                        {
-                            add(credential);
-                        }
-                    });
-//           
-                } else {
-                    mongo = new MongoClient();
-                }
-            } else {
-                System.out.println("--->conectacndose a MongoDB Atlas");
-                //Para conexion por uri generalmente de MongoDB Atlas
-                mongo = new MongoClient(new MongoClientURI(uri));
-            }
-
-        } catch (Exception e) {
-            System.out.println("error() " + e.getLocalizedMessage());
-            //       JmoordbUtil.errorMessage("conecction() "+e.getLocalizedMessage());
-        }
-
-        return mongo;
-    }
 }

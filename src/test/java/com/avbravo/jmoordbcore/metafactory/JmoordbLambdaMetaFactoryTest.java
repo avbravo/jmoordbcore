@@ -6,7 +6,7 @@
 package com.avbravo.jmoordbcore.metafactory;
 
 import com.avbravo.jmoordbcore.lambdametafactory.JmoordbLambdaMetaFactory;
-import com.avbravo.jmoordbcore.model.UserInfo;
+import com.avbravo.jmoordbcore.mongodb.model.UserInfo;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.MethodDescriptor;
