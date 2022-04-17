@@ -11,19 +11,18 @@ import com.avbravo.jmoordbcore.annotations.core.TemplateClient;
 import com.avbravo.jmoordbcore.codecnative.JmoordbCodecNative;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import jakarta.ejb.ConcurrencyManagement;
-import jakarta.ejb.ConcurrencyManagementType;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Singleton;
 import jakarta.ws.rs.Produces;
+import java.io.Serializable;
 
 /**
  *
  * @author avbravo
  */
-@Singleton
-@ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
-public class JmoordbCoreProducer {
+//@Singleton
+//@ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
+@ApplicationScoped
+public class JmoordbCoreProducer implements Serializable{
 
     MongoClient mongoClient;
 
