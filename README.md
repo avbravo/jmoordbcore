@@ -1,134 +1,84 @@
 # jmoordbcore
-jmoordbcore
+Jmoordbcore
+Framework Java para Bases de Datos NoSQL.
 
-busqueda
-//             Consumer<Document> printConsumer = document -> 
-//                     tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-//                    
-//            
-//db.getCollection(collection).find(new Document(key, value)).forEach(printConsumer);
+* Framework Java para NoSQL
+* Embebidos
+* Embebidos con referencias
+* Referencias
+* Vistas
 
+Ejecute MongoDB
 
- public T search(String key, String value) {
-        try {
+```shell
+mongo
 
-                MongoDatabase db = mongoClient().getDatabase(database);
+use testdb
 
-            if (db == null) {
-                return null;
-            } else {
-            }
-//            FindIterable<Document> iterable = db.getCollection(collection).find(new Document(key, value));
-//            ////Test.msg("+++ paso iterable");
-//            haveElements = false;
-//            iterable.forEach(new Block<Document>() {
-//                @Override
-//                public void apply(final Document document) {
-//                    try {
-//                        haveElements = true;
-//                        tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-//                    } catch (Exception e) {          
-//          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-//        }
-//
-//                }
-//            });
- Consumer<Document> printConsumer = document -> 
-                     tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-                    
-            
-db.getCollection(collection).find(new Document(key, value)).forEach(printConsumer);
-            if (haveElements) {
-                return tlocal;
-            }
-            return null;
+```
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
+Configure el archivo microprofile-config.properties
 
-        return null;
+```
+mongodb.uri=mongodb://localhost:27017
+#-- Database de configuración
+mongodb.jmoordb= configurationjmoordbdb
 
-    }// </editor-fold>
+#-- Database History
+mongodb.databasehistory=historydb
+
+#-- Database
+mongodb.database=accreditation
+mongodb.database1=sft
+mongodb.database2=practicadb
+
+```
 
 
+Defina una entidad
+```java
+@Entity
+public class Persona {
+@Id
+private String id;
+@Column
+private String name;
+}
+
+```
+Defina un repositorio
+
+```
+@Repository(entity = Persona.class)
+public interface PersonaRepository extends CrudRepository<Persona, Long> {
+}
+```
+
+Integrelo en su controller
+
+```java
+@Path("persona")
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+public class PersonaController {
+  @Inject
+  PersonaRepository personaRepository;
+
+  @GET
+  @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+  public List<User> findAll() {
+
+        return personaRepository.findAll();
+    }
+}
 
 
------------------------------------------------------
-Para Listas
------------------------------------------------------
- private List< T> iterableList(FindIterable<Document> iterable) {
-        List< T> l = new ArrayList<>();
-        try {
-            //Test.msg("-->IterableList::");
-            
-             Consumer<Document> printConsumer = document -> 
-                     l.add( (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList));
-                    
-            
-iterable.forEach(printConsumer);
+```
 
-//            iterable.forEach(new Block<Document>() {
-//                @Override
-//                public void apply(final Document document) {
-//                    try {
-//                        //Test.msg("..........................................................................");
-//                        //Test.msg("Prueba: iterable: "+document.toJson());
-//                        t1 = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-//                        l.add(t1);
-//                    } catch (Exception e) {          
-//          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-//        }
-//
-//                }
-//            });
 
-       } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
-        return l;
-    }// </editor-fold>
 
------------------------------------------------------
-## simple
------------------------------------------------------
-private T iterableSimple(FindIterable<Document> iterable) {
-        try {
-            //      ////Test.msg("$$$$$$$iterable simple");
-            haveElements = false;
-            
-              
-             Consumer<Document> printConsumer = document -> 
-             tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-                    
-            
-iterable.forEach(printConsumer);
-            
-//             Consumer<Document> printConsumer = document -> 
-//                     tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-//                    
-//            
-//db.getCollection(collection).find(new Document(key, value)).forEach(printConsumer);
-//
-//            iterable.forEach(new Block<Document>() {
-//                @Override
-//                public void apply(final Document document) {
-//                    try {
-//                        haveElements = true;
-//                        t1 = (T) documentToJava.fromDocument(entityClass, document, embeddedModelList, referencedModelList, microservicesModelList);
-//                    } catch (Exception e) {          
-//          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-//        }
-//
-//                }
-//            });
+## Libros
 
-        } catch (Exception e) {          
-          excepcionManager(JmoordbUtil.nameOfClass() , JmoordbUtil.nameOfMethod(), e.getLocalizedMessage(), e);
-        }
-        if (haveElements) {
-            return (T) t1;
-        }
-        return null;
 
-    }// </editor-fold>
+[Framework Java para bases de datos NoSQL.](https://leanpub.com/jmoordbcore)
+
+[Building Modern Web Applications With Jakarta EE, NoSQL Databases and Microservices: Create Web Applications Jakarta EE with Microservices, JNoSQL](https://www.amazon.co.uk/Building-Applications-Jakarta-Databases-Microservices/dp/9389423341)
