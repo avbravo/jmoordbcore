@@ -1,12 +1,14 @@
 # jmoordbcore
 Jmoordbcore
-Framework Java para Bases de Datos NoSQL.
-
 * Framework Java para NoSQL
+  
+  **Soporta:**
+  
 * Embebidos
 * Embebidos con referencias
 * Referencias
 * Vistas
+* JakartaEE/Eclipse Microprofile
 
 Ejecute MongoDB
 
